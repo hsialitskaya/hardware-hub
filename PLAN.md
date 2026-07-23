@@ -227,7 +227,15 @@ The LLM converts the request into relevant hardware results.
 
 # Dataset Audit
 
-The provided dataset intentionally contains inconsistencies.
+The initial dataset was reviewed before importing it into the database.
+The data import process includes validation and normalization to prevent invalid records from entering the system.
+
+AI helped identify potential data quality issues:
+
+- duplicate IDs,
+- incorrect brand names,
+- inconsistent date formats,
+- missing values.
 
 Detected issues:
 
