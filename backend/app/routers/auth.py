@@ -23,6 +23,7 @@ def login(payload: LoginRequest, db: DBSession = Depends(get_db)) -> TokenRespon
 def logout(
     authorization: str | None = Header(default=None),
     db: DBSession = Depends(get_db),
+    user: User = Depends(get_current_user),
 ) -> None:
     """
     Revoke the current session by deleting its token from the database.
