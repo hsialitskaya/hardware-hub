@@ -1,0 +1,23 @@
+import secrets
+
+from passlib.context import CryptContext
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+
+def hash_password(password: str) -> str:
+    return pwd_context.hash(password)
+
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    return pwd_context.verify(plain_password, hashed_password)
+
+
+def generate_token() -> str:
+    """Generate an opaque bearer token.
+
+    MVP decision: a simple random token stored in the `sessions` table,
+    instead of a full JWT implementation (see ARCHITECTURE.md
+    "Authentication Decision"). Future improvement: JWT + refresh tokens.
+    """
+    return secrets.token_urlsafe(32)
