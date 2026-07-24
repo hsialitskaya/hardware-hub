@@ -1,12 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.database import Base, engine
 from app.routers import auth, hardware, rentals, search, users
 
-# MVP simplification: create tables directly from models instead of Alembic
-# migrations (see ARCHITECTURE.md "Why SQLite?").
-Base.metadata.create_all(bind=engine)
+# Database schema is managed by Alembic migrations (see backend/alembic/).
+# Run `alembic upgrade head` before starting the app for the first time.
 
 app = FastAPI(title="Hardware Hub API", version="0.1.0")
 

@@ -1,13 +1,14 @@
 """Seed the database with an initial admin user and sample hardware.
 
-Run with (from backend/):
+Run with (from backend/), after applying migrations:
+    alembic upgrade head
     python -m app.seed
 """
 
 from datetime import date
 
 from app.config import get_settings
-from app.database import Base, SessionLocal, engine
+from app.database import SessionLocal
 from app.models.hardware import Hardware, HardwareStatus
 from app.models.user import User, UserRole
 from app.security import hash_password
@@ -52,7 +53,6 @@ SAMPLE_HARDWARE = [
 
 
 def seed() -> None:
-    Base.metadata.create_all(bind=engine)
     settings = get_settings()
     db = SessionLocal()
     try:
