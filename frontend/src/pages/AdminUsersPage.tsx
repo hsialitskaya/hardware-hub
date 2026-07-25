@@ -4,6 +4,7 @@ import type { CreateUserInput } from "../api/users";
 import { UserFormModal } from "../components/UserFormModal";
 import { ConfirmDialog } from "../components/ConfirmDialog";
 import { Spinner } from "../components/Spinner";
+import { Pagination } from "../components/Pagination";
 import { useAuth } from "../hooks/useAuth";
 import { extractErrorMessage } from "../utils/errors";
 import type { User } from "../types";
@@ -52,17 +53,22 @@ export function AdminUsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [pageSize] = useState(10);
+  const [totalItems, setTotalItems] = useState(0);
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [deletingUser, setDeletingUser] = useState<User | null>(null);
   const [busyId, setBusyId] = useState<number | null>(null);
 
-  const loadData = async () => {
+  const loadData = async (currentPage: number = page) => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await listUsers();
-      setUsers(data);
+      const data = await listUsers(currentPage, pageSize);
+      setUsers(data.items);
+      setTotalItems(data.total);
+      setPage(data.page);
     } catch (err) {
       setError(extractErrorMessage(err));
     } finally {
@@ -71,12 +77,12 @@ export function AdminUsersPage() {
   };
 
   useEffect(() => {
-    void loadData();
+    void loadData(1);
   }, []);
 
   const handleCreate = async (payload: CreateUserInput) => {
     await createUser(payload);
-    await loadData();
+    await loadData(1);
   };
 
   const handleDelete = async () => {
@@ -86,12 +92,16 @@ export function AdminUsersPage() {
     try {
       await deleteUser(deletingUser.id);
       setDeletingUser(null);
-      await loadData();
+      await loadData(page);
     } catch (err) {
       setError(extractErrorMessage(err));
     } finally {
       setBusyId(null);
     }
+  };
+
+  const handlePageChange = (nextPage: number) => {
+    void loadData(nextPage);
   };
 
   const adminCount = users.filter((u) => u.role === "admin").length;
@@ -193,6 +203,14 @@ export function AdminUsersPage() {
               })}
             </tbody>
           </table>
+        )}
+        {!isLoading && users.length > 0 && (
+          <Pagination
+            page={page}
+            pageSize={pageSize}
+            total={totalItems}
+            onPageChange={handlePageChange}
+          />
         )}
       </div>
 

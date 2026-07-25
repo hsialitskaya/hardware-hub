@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { myRentals, returnHardware } from "../api/rentals";
 import { listHardware } from "../api/hardware";
 import { Spinner } from "../components/Spinner";
+import { Pagination } from "../components/Pagination";
 import { extractErrorMessage } from "../utils/errors";
 import type { Hardware, Rental } from "../types";
 
@@ -16,20 +17,25 @@ export function MyRentalsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [pendingId, setPendingId] = useState<number | null>(null);
+  const [page, setPage] = useState(1);
+  const [pageSize] = useState(10);
+  const [totalItems, setTotalItems] = useState(0);
 
   const [sortKey, setSortKey] = useState<SortKey>("rented_at");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
 
-  const loadData = async () => {
+  const loadData = async (currentPage: number = page) => {
     setIsLoading(true);
     setError(null);
     try {
       const [rentalList, hardwareList] = await Promise.all([
-        myRentals(),
-        listHardware(),
+        myRentals(currentPage, pageSize),
+        listHardware({ page_size: 100 }),
       ]);
-      setRentals(rentalList);
-      setHardwareById(new Map(hardwareList.map((hw) => [hw.id, hw])));
+      setRentals(rentalList.items);
+      setTotalItems(rentalList.total);
+      setPage(rentalList.page);
+      setHardwareById(new Map(hardwareList.items.map((hw) => [hw.id, hw])));
     } catch (err) {
       setError(extractErrorMessage(err));
     } finally {
@@ -38,7 +44,7 @@ export function MyRentalsPage() {
   };
 
   useEffect(() => {
-    void loadData();
+    void loadData(1);
   }, []);
 
   const handleReturn = async (rentalId: number) => {
@@ -46,12 +52,16 @@ export function MyRentalsPage() {
     setError(null);
     try {
       await returnHardware(rentalId);
-      await loadData();
+      await loadData(page);
     } catch (err) {
       setError(extractErrorMessage(err));
     } finally {
       setPendingId(null);
     }
+  };
+
+  const handlePageChange = (nextPage: number) => {
+    void loadData(nextPage);
   };
 
   const sortedRentals = useMemo(() => {
@@ -183,6 +193,14 @@ export function MyRentalsPage() {
               })}
             </tbody>
           </table>
+        )}
+        {!isLoading && rentals.length > 0 && (
+          <Pagination
+            page={page}
+            pageSize={pageSize}
+            total={totalItems}
+            onPageChange={handlePageChange}
+          />
         )}
       </div>
     </div>

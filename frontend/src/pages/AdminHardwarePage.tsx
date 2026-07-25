@@ -7,6 +7,7 @@ import {
 } from "../api/hardware";
 import { StatusBadge } from "../components/StatusBadge";
 import { Spinner } from "../components/Spinner";
+import { Pagination } from "../components/Pagination";
 import { HardwareFormModal } from "../components/HardwareFormModal";
 import { ConfirmDialog } from "../components/ConfirmDialog";
 import { extractErrorMessage } from "../utils/errors";
@@ -90,18 +91,26 @@ export function AdminHardwarePage() {
   const [hardware, setHardware] = useState<Hardware[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [pageSize] = useState(10);
+  const [totalItems, setTotalItems] = useState(0);
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<Hardware | null>(null);
   const [deletingItem, setDeletingItem] = useState<Hardware | null>(null);
   const [busyId, setBusyId] = useState<number | null>(null);
 
-  const loadData = async () => {
+  const loadData = async (currentPage: number = page) => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await listHardware();
-      setHardware(data);
+      const data = await listHardware({
+        page: currentPage,
+        page_size: pageSize,
+      });
+      setHardware(data.items);
+      setTotalItems(data.total);
+      setPage(data.page);
     } catch (err) {
       setError(extractErrorMessage(err));
     } finally {
@@ -110,7 +119,7 @@ export function AdminHardwarePage() {
   };
 
   useEffect(() => {
-    void loadData();
+    void loadData(1);
   }, []);
 
   const handleCreateOrUpdate = async (payload: HardwareInput) => {
@@ -119,7 +128,7 @@ export function AdminHardwarePage() {
     } else {
       await createHardware(payload);
     }
-    await loadData();
+    await loadData(1);
   };
 
   const handleToggleRepair = async (item: Hardware) => {
@@ -128,7 +137,7 @@ export function AdminHardwarePage() {
     try {
       const nextStatus = item.status === "repair" ? "available" : "repair";
       await updateHardware(item.id, { status: nextStatus });
-      await loadData();
+      await loadData(page);
     } catch (err) {
       setError(extractErrorMessage(err));
     } finally {
@@ -143,12 +152,16 @@ export function AdminHardwarePage() {
     try {
       await deleteHardware(deletingItem.id);
       setDeletingItem(null);
-      await loadData();
+      await loadData(page);
     } catch (err) {
       setError(extractErrorMessage(err));
     } finally {
       setBusyId(null);
     }
+  };
+
+  const handlePageChange = (nextPage: number) => {
+    void loadData(nextPage);
   };
 
   return (
@@ -236,10 +249,16 @@ export function AdminHardwarePage() {
                       <button
                         type="button"
                         onClick={() => handleToggleRepair(item)}
-                        disabled={busyId === item.id}
+                        disabled={
+                          busyId === item.id || item.status === "in_use"
+                        }
                         className="text-gray-500 transition hover:text-gray-900 disabled:opacity-40"
                         title={
-                          item.status === "repair" ? "End Repair" : "Repair"
+                          item.status === "repair"
+                            ? "End Repair"
+                            : item.status === "in_use"
+                              ? "Cannot repair while rented"
+                              : "Repair"
                         }
                       >
                         <WrenchIcon className="h-5 w-5" />
@@ -259,6 +278,14 @@ export function AdminHardwarePage() {
             </tbody>
           </table>
         )}
+        {!isLoading && hardware.length > 0 && (
+          <Pagination
+            page={page}
+            pageSize={pageSize}
+            total={totalItems}
+            onPageChange={handlePageChange}
+          />
+        )}
       </div>
 
       <HardwareFormModal
@@ -271,7 +298,7 @@ export function AdminHardwarePage() {
       <ConfirmDialog
         open={!!deletingItem}
         title="Delete Hardware"
-        message={`Are you sure you want to delete "${deletingItem?.name}"? This action cannot be undone.`}
+        message={`Are you sure you want to delete ${deletingItem?.name} with serial number ${deletingItem?.serial_number}? This action cannot be undone.`}
         confirmLabel="Delete"
         danger
         onConfirm={handleDelete}
