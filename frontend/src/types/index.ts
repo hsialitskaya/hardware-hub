@@ -13,6 +13,7 @@ export interface Hardware {
   id: number;
   name: string;
   brand: string;
+  serial_number: string | null;
   purchase_date: string | null;
   status: HardwareStatus;
   notes: string | null;
@@ -21,6 +22,7 @@ export interface Hardware {
 export interface HardwareInput {
   name: string;
   brand: string;
+  serial_number: string | null;
   purchase_date: string | null;
   status: HardwareStatus;
   notes: string | null;
