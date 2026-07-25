@@ -189,8 +189,7 @@ export function DashboardPage() {
   const handleSearch = async (e: FormEvent) => {
     e.preventDefault();
     if (!searchQuery.trim()) {
-      setHasSearched(false);
-      setSearchResults([]);
+      handleResetSearch();
       return;
     }
 
@@ -206,6 +205,23 @@ export function DashboardPage() {
       setIsSearching(false);
     }
   };
+
+  const handleResetSearch = () => {
+    setSearchQuery("");
+    setSearchResults([]);
+    setHasSearched(false);
+  };
+
+  const aiMatchedIds = useMemo(() => {
+    return new Set(searchResults.map((r) => r.hardware.id));
+  }, [searchResults]);
+
+  const displayedHardware = useMemo(() => {
+    if (hasSearched && searchResults.length > 0) {
+      return sortedHardware.filter((item) => aiMatchedIds.has(item.id));
+    }
+    return sortedHardware;
+  }, [sortedHardware, hasSearched, searchResults.length, aiMatchedIds]);
 
   return (
     <div>
@@ -244,35 +260,20 @@ export function DashboardPage() {
             </div>
           )}
 
-          {!isSearching && hasSearched && (
-            <div className="mt-6">
-              {searchResults.length === 0 ? (
-                <div className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-8 text-center text-sm text-gray-500">
-                  No matching hardware found.
-                </div>
-              ) : (
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {searchResults.map(({ hardware: item, reason }) => (
-                    <div
-                      key={item.id}
-                      className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition hover:shadow-md"
-                    >
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <h3 className="font-semibold text-gray-900">
-                            {item.name}
-                          </h3>
-                          <p className="text-sm text-gray-600">{item.brand}</p>
-                        </div>
-                        <StatusBadge status={item.status} />
-                      </div>
-                      {reason && (
-                        <p className="mt-3 text-xs text-gray-500">{reason}</p>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
+          {hasSearched && !isSearching && (
+            <div className="mb-4 mt-6 flex items-center justify-between rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">
+              <span className="text-sm text-gray-600">
+                {searchResults.length > 0
+                  ? `Showing ${searchResults.length} AI result${searchResults.length === 1 ? "" : "s"}`
+                  : "AI didn't return anything. Try again or reset to see the full list."}
+              </span>
+              <button
+                type="button"
+                onClick={handleResetSearch}
+                className="rounded-lg px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100"
+              >
+                Reset AI Search
+              </button>
             </div>
           )}
         </div>
@@ -333,9 +334,11 @@ export function DashboardPage() {
           <div className="px-4 py-8 text-center text-sm text-gray-700">
             {error}
           </div>
-        ) : sortedHardware.length === 0 ? (
+        ) : displayedHardware.length === 0 ? (
           <div className="px-4 py-8 text-center text-sm text-gray-500">
-            No hardware matching the criteria.
+            {hasSearched
+              ? "AI didn't return anything. Try again or reset to see the full list."
+              : "No hardware matching the criteria."}
           </div>
         ) : (
           <table className="min-w-full text-base">
@@ -389,7 +392,7 @@ export function DashboardPage() {
               </tr>
             </thead>
             <tbody>
-              {sortedHardware.map((item, index) => {
+              {displayedHardware.map((item, index) => {
                 const myRental = activeRentalByHardwareId.get(item.id);
                 const isPending =
                   pendingId === item.id ||

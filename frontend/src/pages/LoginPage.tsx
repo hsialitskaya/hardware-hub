@@ -84,6 +84,7 @@ export function LoginPage() {
               maxLength={MAX_LENGTH.PASSWORD}
               required
               className="mt-2"
+              inputClassName="border-0 bg-gray-100 focus:bg-white focus:ring-gray-200"
             />
           </div>
 

@@ -96,7 +96,7 @@ export function UserFormModal({ open, onClose, onSubmit }: UserFormModalProps) {
               maxLength={MAX_LENGTH.PASSWORD}
               required
               className="mt-1"
-              inputClassName="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-gray-500 focus:ring-2 focus:ring-gray-300"
+              inputClassName="rounded-lg px-3 py-2 text-sm"
               buttonClassName="right-3"
             />
           </div>

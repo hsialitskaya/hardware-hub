@@ -45,6 +45,11 @@ def _ai_search(
     client_kwargs: dict[str, str] = {"api_key": api_key}
     if base_url is not None:
         client_kwargs["base_url"] = base_url
+        # OpenRouter requires these headers to identify the calling site.
+        client_kwargs["default_headers"] = {
+            "HTTP-Referer": "https://github.com/hsialitskaya/hardware-hub",
+            "X-Title": "Hardware Hub",
+        }
 
     client = OpenAI(**client_kwargs)
     catalog = [
@@ -75,50 +80,25 @@ def semantic_search(db: DBSession, query: str) -> tuple[list[tuple[Hardware, str
     MVP approach: send the whole (small) catalog to the LLM and ask it to
     return matching ids, instead of building an embeddings/vector-search
     pipeline (see ARCHITECTURE.md "AI Search Decision").
-
-    Provider priority:
-        1. OpenRouter (if OPENROUTER_API_KEY is set)
-        2. OpenAI (if OPENAI_API_KEY is set)
-        3. Keyword fallback
     """
     settings = get_settings()
     all_hardware = db.query(Hardware).all()
 
-    if not all_hardware:
+    if not settings.openrouter_api_key or not all_hardware:
         return _keyword_fallback(db, query), False
 
-    if settings.openrouter_api_key:
-        try:
-            return (
-                _ai_search(
-                    db,
-                    query,
-                    all_hardware,
-                    api_key=settings.openrouter_api_key,
-                    base_url="https://openrouter.ai/api/v1",
-                    model="openai/gpt-4o-mini",
-                ),
-                True,
-            )
-        except Exception:
-            logger.exception("OpenRouter semantic search failed, falling back to keyword search")
-            return _keyword_fallback(db, query), False
-
-    if settings.openai_api_key:
-        try:
-            return (
-                _ai_search(
-                    db,
-                    query,
-                    all_hardware,
-                    api_key=settings.openai_api_key,
-                    base_url=None,
-                    model="gpt-4o-mini",
-                ),
-                True,
-            )
-        except Exception:
-            logger.exception("OpenAI semantic search failed, falling back to keyword search")
-            return _keyword_fallback(db, query), False
-
-    return _keyword_fallback(db, query), False
+    try:
+        return (
+            _ai_search(
+                db,
+                query,
+                all_hardware,
+                api_key=settings.openrouter_api_key,
+                base_url="https://openrouter.ai/api/v1",
+                model="openai/gpt-4o-mini",
+            ),
+            True,
+        )
+    except Exception:
+        logger.exception("OpenRouter semantic search failed, falling back to keyword search")
+        return _keyword_fallback(db, query), False
