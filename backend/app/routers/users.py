@@ -1,17 +1,24 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy.orm import Session as DBSession
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 
 from app.dependencies import get_current_user, get_db, require_admin
 from app.exceptions import BusinessRuleError
 from app.models.user import User
-from app.schemas.user import UserCreate, UserOut
+from app.schemas.user import UserCreate, UserOut, PaginatedUserOut
 from app.services import user_service
 
 router = APIRouter(prefix="/users", tags=["users"])
+limiter = Limiter(key_func=get_remote_address)
 
 
 @router.get("/me", response_model=UserOut)
-def get_current_user_profile(user: User = Depends(get_current_user)) -> User:
+@limiter.limit("60/minute")
+def get_current_user_profile(
+    request: Request,
+    user: User = Depends(get_current_user),
+) -> User:
     """
     Retrieve the current authenticated user's profile.
 
@@ -20,18 +27,37 @@ def get_current_user_profile(user: User = Depends(get_current_user)) -> User:
     return user
 
 
-@router.get("", response_model=list[UserOut], dependencies=[Depends(require_admin)])
-def list_users(db: DBSession = Depends(get_db)) -> list[User]:
+@router.get("", response_model=PaginatedUserOut, dependencies=[Depends(require_admin)])
+@limiter.limit("60/minute")
+def list_users(
+    request: Request,
+    db: DBSession = Depends(get_db),
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=10, ge=1, le=100),
+) -> PaginatedUserOut:
     """
     List all users in the system.
 
     Admin only.
     """
-    return db.query(User).all()
+    query = db.query(User)
+    total = query.count()
+    items = query.offset((page - 1) * page_size).limit(page_size).all()
+    return PaginatedUserOut(
+        items=[UserOut.model_validate(user) for user in items],
+        total=total,
+        page=page,
+        page_size=page_size,
+    )
 
 
 @router.post("", response_model=UserOut, status_code=201, dependencies=[Depends(require_admin)])
-def create_user(payload: UserCreate, db: DBSession = Depends(get_db)) -> User:
+@limiter.limit("20/minute")
+def create_user(
+    request: Request,
+    payload: UserCreate,
+    db: DBSession = Depends(get_db),
+) -> User:
     """
     Create a new user account.
 
@@ -47,7 +73,9 @@ def create_user(payload: UserCreate, db: DBSession = Depends(get_db)) -> User:
 
 
 @router.delete("/{user_id}", status_code=204)
+@limiter.limit("30/minute")
 def delete_user(
+    request: Request,
     user_id: int,
     db: DBSession = Depends(get_db),
     admin: User = Depends(require_admin),
