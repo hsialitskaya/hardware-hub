@@ -6,7 +6,13 @@ from app.models.user import User
 from app.security import generate_token, verify_password
 
 
+COMPANY_DOMAIN = "@booksy.com"
+
+
 def login(db: DBSession, email: str, password: str) -> tuple[User, str]:
+    if not email.lower().endswith(COMPANY_DOMAIN):
+        raise AuthError(f"Only company emails ending with {COMPANY_DOMAIN} are allowed.")
+
     user = db.query(User).filter(User.email == email).first()
     if user is None or not verify_password(password, user.hashed_password):
         raise AuthError("Invalid email or password")
