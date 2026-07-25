@@ -5,16 +5,16 @@ const STATUS_CONFIG: Record<
   { label: string; className: string }
 > = {
   available: {
-    label: "Dostępny",
-    className: "bg-emerald-100 text-emerald-700 ring-emerald-600/20",
+    label: "Available",
+    className: "bg-gray-950 text-white",
   },
   in_use: {
-    label: "W użyciu",
-    className: "bg-sky-100 text-sky-700 ring-sky-600/20",
+    label: "Rented",
+    className: "bg-gray-200 text-gray-700",
   },
   repair: {
-    label: "Naprawa",
-    className: "bg-amber-100 text-amber-700 ring-amber-600/20",
+    label: "In Repair",
+    className: "bg-rose-500 text-white",
   },
 };
 
@@ -22,7 +22,7 @@ export function StatusBadge({ status }: { status: HardwareStatus }) {
   const config = STATUS_CONFIG[status];
   return (
     <span
-      className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-inset ${config.className}`}
+      className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${config.className}`}
     >
       {config.label}
     </span>
