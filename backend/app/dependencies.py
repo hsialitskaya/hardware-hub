@@ -126,3 +126,21 @@ def require_admin(
         )
 
     return user
+
+
+def get_current_token(
+    authorization: str | None = Header(default=None),
+) -> str:
+    """
+    Extract and return the Bearer token from the Authorization header.
+
+    The token is validated for correct format, but not checked against
+    the database. Use `get_current_user` when the user object is needed.
+    """
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated"
+        )
+
+    return authorization.removeprefix("Bearer ").strip()

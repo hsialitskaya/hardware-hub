@@ -12,6 +12,6 @@ router = APIRouter(prefix="/search", tags=["search"], dependencies=[Depends(get_
 def search_hardware(payload: SearchRequest, db: DBSession = Depends(get_db)):
     matches, used_ai = ai_search_service.semantic_search(db, payload.query)
     return SearchResponse(
-        results=[SearchResult(hardware=hw) for hw in matches],
+        results=[SearchResult(hardware=hw, reason=reason) for hw, reason in matches],
         used_ai=used_ai,
     )

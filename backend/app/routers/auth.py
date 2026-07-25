@@ -1,9 +1,8 @@
-from fastapi import APIRouter, Depends, Header, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session as DBSession
 
-from app.dependencies import get_current_user, get_db
+from app.dependencies import get_current_token, get_db
 from app.exceptions import AuthError
-from app.models.user import User
 from app.schemas.auth import LoginRequest, TokenResponse
 from app.services import auth_service
 
@@ -21,9 +20,8 @@ def login(payload: LoginRequest, db: DBSession = Depends(get_db)) -> TokenRespon
 
 @router.post("/logout", status_code=204)
 def logout(
-    authorization: str | None = Header(default=None),
     db: DBSession = Depends(get_db),
-    user: User = Depends(get_current_user),
+    token: str = Depends(get_current_token),
 ) -> None:
     """
     Revoke the current session by deleting its token from the database.
@@ -31,8 +29,4 @@ def logout(
     After logout, the client must discard the token and cannot use it
     for future requests.
     """
-    if not authorization or not authorization.startswith("Bearer "):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
-
-    token = authorization.removeprefix("Bearer ").strip()
     auth_service.logout(db, token)

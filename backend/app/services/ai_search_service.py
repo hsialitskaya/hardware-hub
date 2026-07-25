@@ -9,13 +9,17 @@ from app.models.hardware import Hardware
 logger = logging.getLogger(__name__)
 
 
-def _keyword_fallback(db: DBSession, query: str) -> list[Hardware]:
+KEYWORD_REASON = "Matched by keyword search"
+AI_REASON = "Matched by AI search"
+
+
+def _keyword_fallback(db: DBSession, query: str) -> list[tuple[Hardware, str]]:
     """Simple case-insensitive search used when the AI service is
     unavailable or no API key is configured, so the search feature keeps
     working end-to-end even if OpenAI is down (see ARCHITECTURE.md risks).
     """
     like = f"%{query}%"
-    return (
+    matches = (
         db.query(Hardware)
         .filter(
             (Hardware.name.ilike(like))
@@ -24,10 +28,11 @@ def _keyword_fallback(db: DBSession, query: str) -> list[Hardware]:
         )
         .all()
     )
+    return [(hw, KEYWORD_REASON) for hw in matches]
 
 
-def semantic_search(db: DBSession, query: str) -> tuple[list[Hardware], bool]:
-    """Returns (matching hardware, used_ai).
+def semantic_search(db: DBSession, query: str) -> tuple[list[tuple[Hardware, str]], bool]:
+    """Returns (matching hardware with reasons, used_ai).
 
     MVP approach: send the whole (small) catalog to the LLM and ask it to
     return matching ids, instead of building an embeddings/vector-search
@@ -62,7 +67,7 @@ def semantic_search(db: DBSession, query: str) -> tuple[list[Hardware], bool]:
         content = response.choices[0].message.content or "[]"
         matched_ids = set(json.loads(content))
         matched = [hw for hw in all_hardware if hw.id in matched_ids]
-        return matched, True
+        return [(hw, AI_REASON) for hw in matched], True
     except Exception:
         logger.exception("AI semantic search failed, falling back to keyword search")
         return _keyword_fallback(db, query), False
