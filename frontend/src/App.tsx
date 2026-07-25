@@ -6,7 +6,6 @@ import { Layout } from "./components/Layout";
 import { LoginPage } from "./pages/LoginPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { MyRentalsPage } from "./pages/MyRentalsPage";
-import { SearchPage } from "./pages/SearchPage";
 import { AdminHardwarePage } from "./pages/AdminHardwarePage";
 import { AdminUsersPage } from "./pages/AdminUsersPage";
 
@@ -26,7 +25,6 @@ export default function App() {
           >
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/rentals/me" element={<MyRentalsPage />} />
-            <Route path="/search" element={<SearchPage />} />
             <Route
               path="/admin/hardware"
               element={
