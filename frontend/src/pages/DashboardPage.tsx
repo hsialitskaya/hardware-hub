@@ -3,6 +3,7 @@ import type { FormEvent } from "react";
 import { listHardware } from "../api/hardware";
 import { myRentals, rentHardware, returnHardware } from "../api/rentals";
 import { semanticSearch } from "../api/search";
+import { Pagination } from "../components/Pagination";
 import { StatusBadge } from "../components/StatusBadge";
 import { Spinner } from "../components/Spinner";
 import { useAuth } from "../hooks/useAuth";
@@ -76,14 +77,26 @@ export function DashboardPage() {
   const [sortKey, setSortKey] = useState<SortKey>("name");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
 
+  const [page, setPage] = useState(1);
+  const [pageSize] = useState(10);
+  const [totalItems, setTotalItems] = useState(0);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
   const [searchCache, setSearchCache] = useState<
-    Record<string, SearchResult[]>
+    Record<string, { results: SearchResult[]; signature: string }>
   >({});
+
+  const computeHardwareSignature = (items: Hardware[]) => {
+    return `${items.length}-${items.map((h) => h.id).join(",")}`;
+  };
+
+  useEffect(() => {
+    setPage(1);
+  }, [statusFilter, brandFilter]);
 
   useEffect(() => {
     let cancelled = false;
@@ -95,16 +108,21 @@ export function DashboardPage() {
         const hw = await listHardware({
           status: statusFilter,
           brand: brandFilter,
+          sort_by: sortKey,
+          page,
+          page_size: pageSize,
         });
         let activeRentals: Rental[] = [];
 
         // Only load rentals for non-admin users
         if (user?.role !== "admin") {
-          activeRentals = await myRentals();
+          const rentalsResponse = await myRentals();
+          activeRentals = rentalsResponse.items;
         }
 
         if (!cancelled) {
-          setHardware(hw);
+          setHardware(hw.items);
+          setTotalItems(hw.total);
           setRentals(activeRentals);
         }
       } catch (err) {
@@ -118,19 +136,33 @@ export function DashboardPage() {
     return () => {
       cancelled = true;
     };
-  }, [statusFilter, brandFilter, user]);
+  }, [statusFilter, brandFilter, sortKey, page, pageSize, user]);
+
+  useEffect(() => {
+    setSearchCache({});
+  }, [computeHardwareSignature(hardware)]);
 
   const refresh = async () => {
-    const hw = await listHardware({ status: statusFilter, brand: brandFilter });
+    const hw = await listHardware({
+      status: statusFilter,
+      brand: brandFilter,
+      sort_by: sortKey,
+      page,
+      page_size: pageSize,
+    });
     let activeRentals: Rental[] = [];
 
     // Only load rentals for non-admin users
     if (user?.role !== "admin") {
-      activeRentals = await myRentals();
+      const rentalsResponse = await myRentals();
+      activeRentals = rentalsResponse.items;
     }
 
-    setHardware(hw);
+    setHardware(hw.items);
+    setTotalItems(hw.total);
     setRentals(activeRentals);
+    // Clear AI cache when the underlying hardware list may have changed.
+    setSearchCache({});
   };
 
   const activeRentalByHardwareId = useMemo(() => {
@@ -144,15 +176,8 @@ export function DashboardPage() {
   }, [rentals, user]);
 
   const sortedHardware = useMemo(() => {
-    const items = [...hardware];
-    items.sort((a, b) => {
-      const aValue = a[sortKey] ?? "";
-      const bValue = b[sortKey] ?? "";
-      const comparison = String(aValue).localeCompare(String(bValue));
-      return sortDirection === "asc" ? comparison : -comparison;
-    });
-    return items;
-  }, [hardware, sortKey, sortDirection]);
+    return hardware;
+  }, [hardware]);
 
   const toggleSort = (key: SortKey) => {
     if (sortKey === key) {
@@ -161,6 +186,7 @@ export function DashboardPage() {
       setSortKey(key);
       setSortDirection("asc");
     }
+    setPage(1);
   };
 
   const handleRent = async (hardwareId: number) => {
@@ -197,8 +223,10 @@ export function DashboardPage() {
       return;
     }
 
-    if (searchCache[trimmedQuery]) {
-      setSearchResults(searchCache[trimmedQuery]);
+    const currentSignature = computeHardwareSignature(hardware);
+    const cached = searchCache[trimmedQuery];
+    if (cached && cached.signature === currentSignature) {
+      setSearchResults(cached.results);
       setHasSearched(true);
       return;
     }
@@ -206,9 +234,15 @@ export function DashboardPage() {
     setIsSearching(true);
     setSearchError(null);
     try {
-      const response = await semanticSearch(trimmedQuery);
+      const response = await semanticSearch(trimmedQuery, 1, pageSize);
       setSearchResults(response.results);
-      setSearchCache((prev) => ({ ...prev, [trimmedQuery]: response.results }));
+      setSearchCache((prev) => ({
+        ...prev,
+        [trimmedQuery]: {
+          results: response.results,
+          signature: currentSignature,
+        },
+      }));
       setHasSearched(true);
     } catch (err) {
       setSearchError(extractErrorMessage(err));
@@ -228,10 +262,13 @@ export function DashboardPage() {
   }, [searchResults]);
 
   const displayedHardware = useMemo(() => {
-    if (hasSearched && searchResults.length > 0) {
-      return sortedHardware.filter((item) => aiMatchedIds.has(item.id));
+    if (!hasSearched) {
+      return sortedHardware;
     }
-    return sortedHardware;
+    if (searchResults.length === 0) {
+      return [];
+    }
+    return sortedHardware.filter((item) => aiMatchedIds.has(item.id));
   }, [sortedHardware, hasSearched, searchResults.length, aiMatchedIds]);
 
   return (
@@ -291,7 +328,7 @@ export function DashboardPage() {
               <span className="text-sm text-gray-600">
                 {searchResults.length > 0
                   ? `Showing ${searchResults.length} AI result${searchResults.length === 1 ? "" : "s"}`
-                  : "AI didn't return anything. Try again or reset to see the full list."}
+                  : "AI didn't return anything."}
               </span>
               <button
                 type="button"
@@ -363,7 +400,7 @@ export function DashboardPage() {
         ) : displayedHardware.length === 0 ? (
           <div className="px-4 py-8 text-center text-sm text-gray-500">
             {hasSearched
-              ? "AI didn't return anything. Try again or reset to see the full list."
+              ? "AI didn't return anything. Reset the search to see the full list."
               : "No hardware matching the criteria."}
           </div>
         ) : (
@@ -476,6 +513,14 @@ export function DashboardPage() {
               })}
             </tbody>
           </table>
+        )}
+        {!hasSearched && (
+          <Pagination
+            page={page}
+            pageSize={pageSize}
+            total={totalItems}
+            onPageChange={setPage}
+          />
         )}
       </div>
     </div>
