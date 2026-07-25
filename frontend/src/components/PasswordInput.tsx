@@ -49,6 +49,7 @@ interface PasswordInputProps {
   className?: string;
   inputClassName?: string;
   buttonClassName?: string;
+  variant?: "default" | "filled";
 }
 
 export function PasswordInput({
@@ -62,8 +63,17 @@ export function PasswordInput({
   className = "",
   inputClassName = "",
   buttonClassName = "",
+  variant = "default",
 }: PasswordInputProps) {
   const [showPassword, setShowPassword] = useState(false);
+
+  const baseClasses =
+    "w-full rounded-xl px-4 py-3 pr-11 text-base text-gray-900 placeholder-gray-500 focus:outline-none";
+
+  const variantClasses =
+    variant === "filled"
+      ? "border-0 bg-gray-100 focus:bg-white focus:ring-2 focus:ring-gray-200"
+      : "border border-gray-300 bg-white focus:border-gray-500 focus:ring-2 focus:ring-gray-300";
 
   return (
     <div className={`relative ${className}`}>
@@ -76,7 +86,7 @@ export function PasswordInput({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className={`w-full rounded-xl border border-gray-300 bg-white px-4 py-3 pr-11 text-base text-gray-900 placeholder-gray-500 focus:border-gray-500 focus:ring-2 focus:ring-gray-300 focus:outline-none ${inputClassName}`}
+        className={`${baseClasses} ${variantClasses} ${inputClassName}`}
       />
       <button
         type="button"

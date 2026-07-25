@@ -81,6 +81,9 @@ export function DashboardPage() {
   const [isSearching, setIsSearching] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
+  const [searchCache, setSearchCache] = useState<
+    Record<string, SearchResult[]>
+  >({});
 
   useEffect(() => {
     let cancelled = false;
@@ -188,16 +191,24 @@ export function DashboardPage() {
 
   const handleSearch = async (e: FormEvent) => {
     e.preventDefault();
-    if (!searchQuery.trim()) {
+    const trimmedQuery = searchQuery.trim();
+    if (!trimmedQuery) {
       handleResetSearch();
+      return;
+    }
+
+    if (searchCache[trimmedQuery]) {
+      setSearchResults(searchCache[trimmedQuery]);
+      setHasSearched(true);
       return;
     }
 
     setIsSearching(true);
     setSearchError(null);
     try {
-      const response = await semanticSearch(searchQuery.trim());
+      const response = await semanticSearch(trimmedQuery);
       setSearchResults(response.results);
+      setSearchCache((prev) => ({ ...prev, [trimmedQuery]: response.results }));
       setHasSearched(true);
     } catch (err) {
       setSearchError(extractErrorMessage(err));
@@ -232,20 +243,29 @@ export function DashboardPage() {
       {/* Search Section - Only for non-admin users */}
       {user?.role !== "admin" && (
         <div className="mb-6">
-          <form onSubmit={handleSearch} className="relative">
-            <div className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-              <SearchIcon className="h-5 w-5" />
+          <form onSubmit={handleSearch} className="flex gap-3">
+            <div className="relative flex-1">
+              <div className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                <SearchIcon className="h-5 w-5" />
+              </div>
+              <input
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Ask AI..."
+                maxLength={MAX_LENGTH.SEARCH_QUERY}
+                className="w-full rounded-xl border-0 bg-gray-100 py-3.5 pl-12 pr-12 text-base text-gray-900 placeholder-gray-500 focus:bg-white focus:ring-2 focus:ring-gray-200 focus:outline-none"
+              />
+              <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-purple-500">
+                <SparklesIcon className="h-5 w-5" />
+              </div>
             </div>
-            <input
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Ask AI..."
-              maxLength={MAX_LENGTH.SEARCH_QUERY}
-              className="w-full rounded-xl border-0 bg-gray-100 py-3.5 pl-12 pr-12 text-base text-gray-900 placeholder-gray-500 focus:bg-white focus:ring-2 focus:ring-gray-200 focus:outline-none"
-            />
-            <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-purple-500">
-              <SparklesIcon className="h-5 w-5" />
-            </div>
+            <button
+              type="submit"
+              disabled={isSearching || !searchQuery.trim()}
+              className="rounded-xl bg-gray-950 px-6 py-3 text-base font-medium text-white transition hover:bg-gray-900 disabled:opacity-60"
+            >
+              {isSearching ? "Searching..." : "Search"}
+            </button>
           </form>
 
           {searchError && (
@@ -255,8 +275,14 @@ export function DashboardPage() {
           )}
 
           {isSearching && (
-            <div className="mt-10 flex justify-center">
-              <Spinner />
+            <div className="mt-8 flex flex-col items-center justify-center gap-3 text-purple-600">
+              <div className="relative h-10 w-10">
+                <div className="absolute inset-0 animate-ping rounded-full bg-purple-200 opacity-75" />
+                <div className="relative flex h-10 w-10 items-center justify-center rounded-full bg-purple-100">
+                  <SparklesIcon className="h-5 w-5 animate-pulse" />
+                </div>
+              </div>
+              <span className="text-sm font-medium">AI is searching...</span>
             </div>
           )}
 
