@@ -86,7 +86,7 @@ export function UserFormModal({ open, onClose, onSubmit }: UserFormModalProps) {
 
           <div>
             <label className="block text-sm font-medium text-gray-700">
-              Temporary Password
+              Password
             </label>
             <PasswordInput
               value={password}
