@@ -25,6 +25,7 @@ def upgrade() -> None:
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=255), nullable=False),
     sa.Column('brand', sa.String(length=255), nullable=False),
+    sa.Column('serial_number', sa.String(length=100), nullable=True),
     sa.Column('purchase_date', sa.Date(), nullable=True),
     sa.Column('status', sa.Enum('available', 'in_use', 'repair', name='hardwarestatus'), nullable=False),
     sa.Column('notes', sa.Text(), nullable=True),

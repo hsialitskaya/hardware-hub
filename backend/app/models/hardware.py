@@ -25,6 +25,7 @@ class Hardware(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     brand: Mapped[str] = mapped_column(String(255), nullable=False)
+    serial_number: Mapped[str | None] = mapped_column(String(100), nullable=True)
     purchase_date: Mapped[date | None] = mapped_column(Date, nullable=True)
     status: Mapped[HardwareStatus] = mapped_column(
         Enum(HardwareStatus, values_callable=lambda enum_cls: [e.value for e in enum_cls]),
