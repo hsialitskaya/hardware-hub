@@ -31,43 +31,94 @@ def _keyword_fallback(db: DBSession, query: str) -> list[tuple[Hardware, str]]:
     return [(hw, KEYWORD_REASON) for hw in matches]
 
 
+def _ai_search(
+    db: DBSession,
+    query: str,
+    all_hardware: list[Hardware],
+    api_key: str,
+    base_url: str | None,
+    model: str,
+) -> list[tuple[Hardware, str]]:
+    """Call an OpenAI-compatible chat completion endpoint to match hardware."""
+    from openai import OpenAI
+
+    client_kwargs: dict[str, str] = {"api_key": api_key}
+    if base_url is not None:
+        client_kwargs["base_url"] = base_url
+
+    client = OpenAI(**client_kwargs)
+    catalog = [
+        {"id": hw.id, "name": hw.name, "brand": hw.brand, "notes": hw.notes}
+        for hw in all_hardware
+    ]
+    prompt = (
+        "You are matching a user request to available hardware.\n"
+        f"User request: {query!r}\n"
+        f"Catalog: {json.dumps(catalog)}\n"
+        "Return ONLY a JSON array of matching hardware ids, e.g. [1, 4, 7]. "
+        "Return an empty array if nothing matches."
+    )
+    response = client.chat.completions.create(
+        model=model,
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0,
+    )
+    content = response.choices[0].message.content or "[]"
+    matched_ids = set(json.loads(content))
+    matched = [hw for hw in all_hardware if hw.id in matched_ids]
+    return [(hw, AI_REASON) for hw in matched]
+
+
 def semantic_search(db: DBSession, query: str) -> tuple[list[tuple[Hardware, str]], bool]:
     """Returns (matching hardware with reasons, used_ai).
 
     MVP approach: send the whole (small) catalog to the LLM and ask it to
     return matching ids, instead of building an embeddings/vector-search
     pipeline (see ARCHITECTURE.md "AI Search Decision").
+
+    Provider priority:
+        1. OpenRouter (if OPENROUTER_API_KEY is set)
+        2. OpenAI (if OPENAI_API_KEY is set)
+        3. Keyword fallback
     """
     settings = get_settings()
     all_hardware = db.query(Hardware).all()
 
-    if not settings.openai_api_key or not all_hardware:
+    if not all_hardware:
         return _keyword_fallback(db, query), False
 
-    try:
-        from openai import OpenAI
+    if settings.openrouter_api_key:
+        try:
+            return (
+                _ai_search(
+                    db,
+                    query,
+                    all_hardware,
+                    api_key=settings.openrouter_api_key,
+                    base_url="https://openrouter.ai/api/v1",
+                    model="openai/gpt-4o-mini",
+                ),
+                True,
+            )
+        except Exception:
+            logger.exception("OpenRouter semantic search failed, falling back to keyword search")
+            return _keyword_fallback(db, query), False
 
-        client = OpenAI(api_key=settings.openai_api_key)
-        catalog = [
-            {"id": hw.id, "name": hw.name, "brand": hw.brand, "notes": hw.notes}
-            for hw in all_hardware
-        ]
-        prompt = (
-            "You are matching a user request to available hardware.\n"
-            f"User request: {query!r}\n"
-            f"Catalog: {json.dumps(catalog)}\n"
-            "Return ONLY a JSON array of matching hardware ids, e.g. [1, 4, 7]. "
-            "Return an empty array if nothing matches."
-        )
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0,
-        )
-        content = response.choices[0].message.content or "[]"
-        matched_ids = set(json.loads(content))
-        matched = [hw for hw in all_hardware if hw.id in matched_ids]
-        return [(hw, AI_REASON) for hw in matched], True
-    except Exception:
-        logger.exception("AI semantic search failed, falling back to keyword search")
-        return _keyword_fallback(db, query), False
+    if settings.openai_api_key:
+        try:
+            return (
+                _ai_search(
+                    db,
+                    query,
+                    all_hardware,
+                    api_key=settings.openai_api_key,
+                    base_url=None,
+                    model="gpt-4o-mini",
+                ),
+                True,
+            )
+        except Exception:
+            logger.exception("OpenAI semantic search failed, falling back to keyword search")
+            return _keyword_fallback(db, query), False
+
+    return _keyword_fallback(db, query), False

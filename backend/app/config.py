@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     database_url: str = "sqlite:///./hardware_hub.db"
     secret_key: str = "change-me-in-production"
     openai_api_key: str | None = None
+    openrouter_api_key: str | None = None
     admin_email: str = "admin@booksy.com"
     admin_password: str = "ChangeMe123!"
 
