@@ -15,3 +15,10 @@ class RentalOut(BaseModel):
     user_id: int
     rented_at: datetime
     returned_at: datetime | None
+
+
+class PaginatedRentalOut(BaseModel):
+    items: list[RentalOut]
+    total: int
+    page: int
+    page_size: int

@@ -29,3 +29,10 @@ class UserOut(UserBase):
 
     id: int
     created_at: datetime
+
+
+class PaginatedUserOut(BaseModel):
+    items: list[UserOut]
+    total: int
+    page: int
+    page_size: int

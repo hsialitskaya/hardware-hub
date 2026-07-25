@@ -31,3 +31,10 @@ class HardwareOut(HardwareBase):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
+
+
+class PaginatedHardwareOut(BaseModel):
+    items: list[HardwareOut]
+    total: int
+    page: int
+    page_size: int

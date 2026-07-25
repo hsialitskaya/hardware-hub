@@ -39,10 +39,17 @@ def return_hardware(db: DBSession, rental_id: int, user: User) -> Rental:
     return rental
 
 
-def list_my_rentals(db: DBSession, user: User) -> list[Rental]:
-    return (
+def list_my_rentals(
+    db: DBSession,
+    user: User,
+    page: int = 1,
+    page_size: int = 10,
+) -> tuple[list[Rental], int]:
+    query = (
         db.query(Rental)
         .filter(Rental.user_id == user.id)
         .order_by(Rental.rented_at.desc())
-        .all()
     )
+    total = query.count()
+    items = query.offset((page - 1) * page_size).limit(page_size).all()
+    return items, total

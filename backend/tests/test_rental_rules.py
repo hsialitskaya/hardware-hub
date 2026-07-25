@@ -187,8 +187,9 @@ class TestReturnHardware:
         )
         rental_service.return_hardware(test_db, rental.id, test_user)
 
-        rentals = rental_service.list_my_rentals(test_db, test_user)
+        rentals, total = rental_service.list_my_rentals(test_db, test_user)
 
         assert len(rentals) == 1
+        assert total == 1
         assert rentals[0].id == rental.id
         assert rentals[0].returned_at is not None
