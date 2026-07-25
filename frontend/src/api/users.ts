@@ -7,8 +7,20 @@ export interface CreateUserInput {
   role: UserRole;
 }
 
-export async function listUsers(): Promise<User[]> {
-  const { data } = await apiClient.get<User[]>("/users");
+export interface PaginatedUsers {
+  items: User[];
+  total: number;
+  page: number;
+  page_size: number;
+}
+
+export async function listUsers(
+  page: number = 1,
+  pageSize: number = 10,
+): Promise<PaginatedUsers> {
+  const { data } = await apiClient.get<PaginatedUsers>("/users", {
+    params: { page: String(page), page_size: String(pageSize) },
+  });
   return data;
 }
 

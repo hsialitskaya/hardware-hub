@@ -5,17 +5,30 @@ export interface HardwareFilters {
   status?: HardwareStatus | "";
   brand?: string;
   sort_by?: string;
+  page?: number;
+  page_size?: number;
+}
+
+export interface PaginatedHardware {
+  items: Hardware[];
+  total: number;
+  page: number;
+  page_size: number;
 }
 
 export async function listHardware(
   filters: HardwareFilters = {},
-): Promise<Hardware[]> {
+): Promise<PaginatedHardware> {
   const params: Record<string, string> = {};
   if (filters.status) params.status = filters.status;
   if (filters.brand) params.brand = filters.brand;
   if (filters.sort_by) params.sort_by = filters.sort_by;
+  if (filters.page) params.page = String(filters.page);
+  if (filters.page_size) params.page_size = String(filters.page_size);
 
-  const { data } = await apiClient.get<Hardware[]>("/hardware", { params });
+  const { data } = await apiClient.get<PaginatedHardware>("/hardware", {
+    params,
+  });
   return data;
 }
 
