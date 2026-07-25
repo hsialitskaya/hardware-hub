@@ -1,10 +1,11 @@
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict, EmailStr, field_validator
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
 from app.models.user import UserRole
 
 COMPANY_DOMAIN = "@booksy.com"
+MIN_PASSWORD_LENGTH = 6
 
 
 class UserBase(BaseModel):
@@ -20,7 +21,7 @@ class UserBase(BaseModel):
 
 
 class UserCreate(UserBase):
-    password: str
+    password: str = Field(..., min_length=MIN_PASSWORD_LENGTH)
 
 
 class UserOut(UserBase):

@@ -54,11 +54,11 @@ def create_user(payload: UserCreate, db: DBSession = Depends(get_db)) -> User:
     return user
 
 
-@router.delete("/{user_id}", status_code=204, dependencies=[Depends(require_admin)])
+@router.delete("/{user_id}", status_code=204)
 def delete_user(
     user_id: int,
     db: DBSession = Depends(get_db),
-    admin: User = Depends(get_current_user),
+    admin: User = Depends(require_admin),
 ) -> None:
     """
     Delete a user account.

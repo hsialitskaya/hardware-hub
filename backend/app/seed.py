@@ -98,7 +98,7 @@ def seed() -> None:
             db.add_all(Hardware(**item) for item in SAMPLE_HARDWARE)
 
         db.commit()
-        print(f"Seed complete. Admin login: {settings.admin_email} / {settings.admin_password}")
+        print(f"Seed complete. Admin user: {settings.admin_email}")
     finally:
         db.close()
 

@@ -1,10 +1,10 @@
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, EmailStr, field_validator
 
 from app.schemas.user import UserOut, COMPANY_DOMAIN
 
 
 class LoginRequest(BaseModel):
-    email: str
+    email: EmailStr
     password: str
 
     @field_validator("email")

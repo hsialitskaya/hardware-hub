@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy.orm import Session as DBSession
 
@@ -16,7 +16,7 @@ def rent_hardware(db: DBSession, hardware_id: int, user: User) -> Rental:
         raise BusinessRuleError(f"Hardware is not available (status: {hardware.status.value})")
 
     hardware.status = HardwareStatus.IN_USE
-    rental = Rental(hardware_id=hardware.id, user_id=user.id, rented_at=datetime.utcnow())
+    rental = Rental(hardware_id=hardware.id, user_id=user.id, rented_at=datetime.now(timezone.utc))
     db.add(rental)
     db.commit()
     db.refresh(rental)
@@ -32,7 +32,7 @@ def return_hardware(db: DBSession, rental_id: int, user: User) -> Rental:
     if rental.returned_at is not None:
         raise BusinessRuleError("This rental was already returned")
 
-    rental.returned_at = datetime.utcnow()
+    rental.returned_at = datetime.now(timezone.utc)
     rental.hardware.status = HardwareStatus.AVAILABLE
     db.commit()
     db.refresh(rental)
