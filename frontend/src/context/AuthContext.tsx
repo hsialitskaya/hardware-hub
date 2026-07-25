@@ -7,7 +7,7 @@ import {
   useState,
 } from "react";
 import type { ReactNode } from "react";
-import type { User } from "../types";
+import type { LoginResponse, User } from "../types";
 import * as authApi from "../api/auth";
 import { TOKEN_KEY, USER_KEY } from "../api/client";
 
@@ -15,7 +15,7 @@ interface AuthContextValue {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<LoginResponse>;
   logout: () => Promise<void>;
 }
 
@@ -44,6 +44,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.setItem(TOKEN_KEY, response.access_token);
     localStorage.setItem(USER_KEY, JSON.stringify(response.user));
     setUser(response.user);
+    return response;
   }, []);
 
   const logout = useCallback(async () => {
