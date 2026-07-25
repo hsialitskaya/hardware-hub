@@ -1,32 +1,40 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
-import { Navigate, useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import { PasswordInput } from "../components/PasswordInput";
 import { extractErrorMessage } from "../utils/errors";
+import { MAX_LENGTH } from "../utils/validation";
+
+const COMPANY_DOMAIN = "@booksy.com";
 
 export function LoginPage() {
-  const { isAuthenticated, login } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  if (isAuthenticated) {
-    const redirectTo =
-      (location.state as { from?: string } | null)?.from ?? "/dashboard";
-    return <Navigate to={redirectTo} replace />;
-  }
-
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError(null);
+
+    if (!email.trim().toLowerCase().endsWith(COMPANY_DOMAIN)) {
+      setError(
+        `Only company emails ending with ${COMPANY_DOMAIN} are allowed.`,
+      );
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
-      await login(email, password);
-      navigate("/dashboard", { replace: true });
+      const response = await login(email, password);
+      const redirectPath =
+        response.user.role === "admin" ? "/admin/hardware" : "/dashboard";
+      navigate(redirectPath, { replace: true });
     } catch (err) {
       setError(extractErrorMessage(err));
     } finally {
@@ -35,22 +43,23 @@ export function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-violet-100 px-4">
-      <div className="w-full max-w-sm rounded-2xl border border-slate-100 bg-white p-8 shadow-xl">
-        <div className="mb-6 flex flex-col items-center text-center">
-          <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 text-lg font-bold text-white shadow-md">
-            HH
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
+      <div className="w-full max-w-md rounded-2xl border border-gray-200 bg-white p-10">
+        <div className="mb-8">
+          <div className="flex flex-col items-center text-center">
+            <h1 className="text-2xl font-semibold text-gray-900">
+              Welcome back
+            </h1>
+            <p className="mt-1 text-base text-gray-500">
+              Sign in to your account
+            </p>
           </div>
-          <h1 className="text-xl font-semibold text-slate-900">Hardware Hub</h1>
-          <p className="mt-1 text-sm text-slate-500">
-            Zaloguj się, aby zarządzać sprzętem firmy
-          </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-sm font-medium text-slate-700">
-              Email
+            <label className="block text-base font-medium text-gray-900">
+              Email (company domain only)
             </label>
             <input
               type="email"
@@ -58,27 +67,28 @@ export function LoginPage() {
               autoFocus
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="ty@firma.pl"
-              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+              placeholder="name@booksy.com"
+              maxLength={MAX_LENGTH.EMAIL}
+              className="mt-2 w-full rounded-xl border-0 bg-gray-100 px-4 py-3 text-base text-gray-900 placeholder-gray-500 focus:bg-white focus:ring-2 focus:ring-gray-200 focus:outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700">
-              Hasło
+            <label className="block text-base font-medium text-gray-900">
+              Password
             </label>
-            <input
-              type="password"
-              required
+            <PasswordInput
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+              onChange={setPassword}
+              placeholder="Enter your password"
+              maxLength={MAX_LENGTH.PASSWORD}
+              required
+              className="mt-2"
             />
           </div>
 
           {error && (
-            <div className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-600">
+            <div className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
               {error}
             </div>
           )}
@@ -86,16 +96,11 @@ export function LoginPage() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full rounded-lg bg-gradient-to-r from-indigo-600 to-violet-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md transition hover:from-indigo-700 hover:to-violet-700 disabled:opacity-60"
+            className="w-full rounded-xl bg-gray-950 px-4 py-3 text-base font-medium text-white transition hover:bg-gray-900 disabled:opacity-60"
           >
-            {isSubmitting ? "Logowanie..." : "Zaloguj się"}
+            {isSubmitting ? "Signing in..." : "Login"}
           </button>
         </form>
-
-        <p className="mt-6 text-center text-xs text-slate-400">
-          Konta tworzy wyłącznie administrator. Skontaktuj się z nim, jeśli nie
-          masz dostępu.
-        </p>
       </div>
     </div>
   );

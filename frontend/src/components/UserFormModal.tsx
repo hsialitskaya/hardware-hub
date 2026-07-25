@@ -2,7 +2,9 @@ import { useState } from "react";
 import type { FormEvent } from "react";
 import type { UserRole } from "../types";
 import type { CreateUserInput } from "../api/users";
+import { PasswordInput } from "./PasswordInput";
 import { extractErrorMessage } from "../utils/errors";
+import { MAX_LENGTH } from "../utils/validation";
 
 interface UserFormModalProps {
   open: boolean;
@@ -31,10 +33,21 @@ export function UserFormModal({ open, onClose, onSubmit }: UserFormModalProps) {
     onClose();
   };
 
+  const COMPANY_DOMAIN = "@booksy.com";
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError(null);
+
+    if (!email.trim().toLowerCase().endsWith(COMPANY_DOMAIN)) {
+      setError(
+        `Only company emails ending with ${COMPANY_DOMAIN} are allowed.`,
+      );
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
       await onSubmit({ email, password, role });
       reset();
@@ -47,15 +60,18 @@ export function UserFormModal({ open, onClose, onSubmit }: UserFormModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4">
-      <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
-        <h3 className="text-lg font-semibold text-slate-900">
-          Utwórz nowe konto
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 p-4">
+      <div className="w-full max-w-sm rounded-lg bg-white p-6 shadow-lg">
+        <h3 className="text-lg font-semibold text-gray-900">
+          Create New Account
         </h3>
+        <p className="mt-1 text-sm text-gray-600">
+          Accounts must use the company domain (@booksy.com).
+        </p>
 
         <form onSubmit={handleSubmit} className="mt-4 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700">
+            <label className="block text-sm font-medium text-gray-700">
               Email
             </label>
             <input
@@ -63,54 +79,62 @@ export function UserFormModal({ open, onClose, onSubmit }: UserFormModalProps) {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+              maxLength={MAX_LENGTH.EMAIL}
+              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-300"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700">
-              Hasło tymczasowe
+            <label className="block text-sm font-medium text-gray-700">
+              Temporary Password
             </label>
-            <input
-              type="password"
-              required
-              minLength={6}
+            <PasswordInput
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+              onChange={setPassword}
+              placeholder="••••••••"
+              minLength={6}
+              maxLength={MAX_LENGTH.PASSWORD}
+              required
+              className="mt-1"
+              inputClassName="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-gray-500 focus:ring-2 focus:ring-gray-300"
+              buttonClassName="right-3"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700">
-              Rola
+            <label className="block text-sm font-medium text-gray-700">
+              Role
             </label>
             <select
               value={role}
               onChange={(e) => setRole(e.target.value as UserRole)}
-              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-300"
             >
-              <option value="user">Użytkownik</option>
-              <option value="admin">Administrator</option>
+              <option value="user">User</option>
+              <option value="admin">Admin</option>
             </select>
           </div>
 
-          {error && <p className="text-sm text-rose-600">{error}</p>}
+          {error && (
+            <div className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
+              {error}
+            </div>
+          )}
 
           <div className="flex justify-end gap-3 pt-2">
             <button
               type="button"
               onClick={handleClose}
-              className="rounded-lg px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100"
+              className="rounded-lg px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100"
             >
-              Anuluj
+              Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 disabled:opacity-60"
+              className="rounded-lg bg-gray-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-gray-700 disabled:opacity-60"
             >
-              {isSubmitting ? "Tworzenie..." : "Utwórz konto"}
+              {isSubmitting ? "Creating..." : "Create Account"}
             </button>
           </div>
         </form>
