@@ -6,15 +6,15 @@ This file contains the most important prompts that shaped the Hardware Hub proje
 
 ## 1. Project Kick-off
 
-> "Zrób mi plan na aplikację do zarządzania wypożyczeniem sprzętu firmy. To zadanie rekrutacyjne. Ma mieć admina, użytkowników, wypożyczanie sprzętu i jeden feature AI."
+> "Create a plan for a company hardware rental management app. This is a recruitment task. It needs an admin, users, hardware rental, and one AI feature."
 
-(Polish, first planning prompt. Established the MVP scope and led to the three-pillar structure: Management Engine, Rental Engine, AI-Native Layer.)
+(Original prompt was in Polish. Established the MVP scope and led to the three-pillar structure: Management Engine, Rental Engine, AI-Native Layer.)
 
 Follow-up:
 
-> "Napisz to w osobnym pliku PLAN.md po angielsku."
+> "Write it in a separate PLAN.md file."
 
-(Polish. Forced the plan into a readable document instead of keeping it scattered in chat.)
+(Original prompt was in Polish. Forced the plan into a readable document instead of keeping it scattered in chat.)
 
 ---
 
@@ -40,9 +40,17 @@ Follow-up:
 
 Follow-up:
 
-> "Napisz dlaczego JWT to overkill na MVP w dokumentacji trade-offs."
+> "Explain why JWT is overkill for an MVP in the trade-offs documentation."
 
-(Polish. Led to the explicit JWT trade-off section in `docs/TRADE_OFFS.md`.)
+(Original prompt was in Polish. Led to the explicit JWT trade-off section in `docs/TRADE_OFFS.md`.)
+
+---
+
+## 4. Admin UX & Domain Validation
+
+> "After logging in as an admin, redirect to hardware instead of rentals."
+
+(English. Changed post-login redirect so admins land on Hardware Management instead of the user dashboard.)
 
 ---
 
@@ -62,9 +70,9 @@ Follow-up:
 
 ## 6. AI Semantic Search
 
-> "Chcę wyszukiwanie naturalne po sprzęcie przez LLM. Jak to zrobić bezpiecznie?"
+> "I want natural-language hardware search using an LLM. How do I do it safely?"
 
-(Polish. Started the AI search design discussion.)
+(English. Started the AI search design discussion.)
 
 Follow-up:
 
@@ -74,17 +82,23 @@ Follow-up:
 
 Follow-up:
 
-> "Write a separate doc explaining the prompt, validation, and why we do not send secrets to the LLM."
+> "How do I protect AI search from attacks where someone sends an invalid or malicious prompt?"
 
-(English. Led to `docs/AI_IMPLEMENTATION.md`.)
+(English. Hardened AI search with input length/character validation, prompt injection resistance, and strict response parsing that only accepts known hardware IDs.)
+
+Follow-up:
+
+> "Don't show the table when AI returns nothing."
+
+(English. Changed dashboard behavior so the hardware table is hidden and a reset button is shown when AI returns no matches.)
 
 ---
 
 ## 7. Frontend API Client
 
-> "Frontend na Vite nie widzi zmiennej VITE_API_URL w Dockerze. Jak to poprawić?"
+> "The Vite frontend doesn't see VITE_API_URL in Docker. How do I fix it?"
 
-(Polish. Debugged the production frontend calling localhost.)
+(Original prompt was in Polish. Debugged the production frontend calling localhost.)
 
 Follow-up:
 
@@ -108,11 +122,25 @@ Follow-up:
 
 ---
 
+## 8.5. Pagination & Rate Limiting
+
+> "Add pagination everywhere possible."
+
+(English. Original prompt was in Polish. Added paginated responses to hardware, users, rentals, and AI search endpoints, plus a shared `Pagination` component on the frontend.)
+
+Follow-up:
+
+> "Add rate limiting."
+
+(English. Added per-route rate limits using `slowapi` with IP-based keys for auth, hardware, rentals, users, and search endpoints.)
+
+---
+
 ## 9. User Deletion Guard
 
-> "Admin nie może usunąć użytkownika, który ma aktywne wypożyczenia. Dodaj to z testami."
+> "An admin cannot delete a user who has active rentals. Add this with tests."
 
-(Polish. Added the active-rental guard and pytest coverage in `backend/tests/test_users.py`.)
+(English. Added the active-rental guard and pytest coverage in `backend/tests/test_users.py`.)
 
 Follow-up:
 
@@ -120,20 +148,32 @@ Follow-up:
 
 (English. Clarified the cascade behavior in `backend/app/services/user_service.py`.)
 
-## 10. Documentation Restructure
+---
 
-> "Rozbij README na mniejsze pliki w folderze docs. Mam za dużo treści."
+## 10. Hardware Management Rules
 
-(Polish. Led to creating `docs/ARCHITECTURE.md`, `docs/PLAN.md`, `docs/FEATURES.md`, `docs/TESTING.md`, `docs/DEPLOYMENT.md`, etc.)
+> "Handle the error when I add or update a device with the same serial number."
+
+(English. Original prompt was in Polish. Added case-insensitive duplicate serial number validation on hardware create and update, returning HTTP 409.)
 
 Follow-up:
 
-> "Add a file that maps every recruitment requirement to implementation artifacts."
+> "The logic is wrong: when a device is in_use, the admin can still mark it as repair, but for the user it stays in_use. Better to prevent the admin from repairing it."
 
-(English. Led to `docs/RECRUITMENT_REQUIREMENTS.md`.)
+(English. Blocked admins from setting `in_use` hardware to `repair`; the device must be returned first.)
+
+---
+
+## 12. Documentation Restructure
+
+> "Split the README into smaller files in a docs folder. It has too much content."
+
+(Original prompt was in Polish. Led to creating `docs/ARCHITECTURE.md`, `docs/PLAN.md`, `docs/FEATURES.md`, `docs/TESTING.md`, `docs/DEPLOYMENT.md`, etc.)
+
+Follow-up:
 
 ## Notes
 
-- Polish prompts were common for quick ideas and fixes; English prompts were used for architecture and documentation that had to stay in the repo.
+- Polish prompts were common for quick ideas and fixes; English prompts were used for architecture and documentation that had to stay in the repo. This trail translates Polish prompts to English for consistency.
 - Many prompts were iterative: an initial high-level request followed by one or two follow-ups that constrained scope or corrected direction.
-- The most useful follow-ups were the ones that added constraints: "only JSON IDs", "bind to `$PORT`", "do not reveal secrets in the prompt".
+- The most useful follow-ups added concrete constraints: "only JSON IDs", "bind to `$PORT`", "do not reveal secrets in the prompt", "company domain only", "no table when AI returns nothing".
