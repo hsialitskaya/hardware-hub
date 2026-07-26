@@ -25,6 +25,7 @@ def list_hardware(
     status_filter: HardwareStatus | None = Query(default=None, alias="status"),
     brand: str | None = None,
     sort_by: str | None = None,
+    sort_direction: str | None = Query(default=None, pattern="^(asc|desc)$"),
     page: int = Query(default=1, ge=1),
     page_size: int = Query(default=10, ge=1, le=100),
     db: DBSession = Depends(get_db),
@@ -34,6 +35,7 @@ def list_hardware(
         status=status_filter,
         brand=brand,
         sort_by=sort_by,
+        sort_direction=sort_direction,
         page=page,
         page_size=page_size,
     )
@@ -46,7 +48,8 @@ def list_hardware(
 
 
 @router.post("", response_model=HardwareOut, status_code=201, dependencies=[Depends(require_admin)])
-def create_hardware(payload: HardwareCreate, db: DBSession = Depends(get_db)):
+@limiter.limit("30/minute")
+def create_hardware(request: Request, payload: HardwareCreate, db: DBSession = Depends(get_db)):
     try:
         return hardware_service.create_hardware(db, payload)
     except ConflictError as exc:
@@ -54,7 +57,8 @@ def create_hardware(payload: HardwareCreate, db: DBSession = Depends(get_db)):
 
 
 @router.patch("/{hardware_id}", response_model=HardwareOut, dependencies=[Depends(require_admin)])
-def update_hardware(hardware_id: int, payload: HardwareUpdate, db: DBSession = Depends(get_db)):
+@limiter.limit("30/minute")
+def update_hardware(request: Request, hardware_id: int, payload: HardwareUpdate, db: DBSession = Depends(get_db)):
     try:
         return hardware_service.update_hardware(db, hardware_id, payload)
     except NotFoundError as exc:

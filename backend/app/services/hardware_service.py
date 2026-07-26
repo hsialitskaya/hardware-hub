@@ -13,6 +13,7 @@ def list_hardware(
     status: HardwareStatus | None = None,
     brand: str | None = None,
     sort_by: str | None = None,
+    sort_direction: str | None = None,
     page: int = 1,
     page_size: int = DEFAULT_PAGE_SIZE,
 ) -> tuple[list[Hardware], int]:
@@ -22,7 +23,11 @@ def list_hardware(
     if brand:
         query = query.filter(Hardware.brand.ilike(f"%{brand}%"))
     if sort_by in {"name", "brand", "purchase_date", "status"}:
-        query = query.order_by(getattr(Hardware, sort_by))
+        column = getattr(Hardware, sort_by)
+        if sort_direction == "desc":
+            query = query.order_by(column.desc())
+        else:
+            query = query.order_by(column.asc())
 
     total = query.count()
     items = query.offset((page - 1) * page_size).limit(page_size).all()
