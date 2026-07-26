@@ -89,6 +89,14 @@ This document maps every requirement recruitment task to the corresponding imple
 | Cannot rent already rented hardware | `backend/tests/test_rental_rules.py`                         |
 | Cannot return someone else's rental | `backend/tests/test_rental_rules.py`                         |
 
+### Hardware Management Guards
+
+| Requirement                                     | Where it is implemented                |
+| ----------------------------------------------- | -------------------------------------- |
+| Cannot add hardware with a future purchase date | `backend/tests/test_hardware_rules.py` |
+| Cannot edit hardware while it is rented         | `backend/tests/test_hardware_rules.py` |
+| Cannot delete hardware while it is rented       | `backend/tests/test_hardware_rules.py` |
+
 ### The AI-Native Layer
 
 | Requirement                             | Where it is implemented                                           |
@@ -100,7 +108,7 @@ This document maps every requirement recruitment task to the corresponding imple
 
 ## Additional Highlights
 
-- **Testing:** 14 backend tests covering rental and user-management critical paths.
+- **Testing:** 20 backend tests covering rental, hardware-management, and user-management critical paths.
 - **Rate limiting:** Slowapi protects public endpoints.
 - **Responsive UI:** Works on mobile, tablet, and desktop.
 - **Docker support:** Both frontend and backend have Dockerfiles and a `docker-compose.yml`.

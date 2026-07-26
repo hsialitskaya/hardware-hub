@@ -6,20 +6,20 @@ This document is a transparent summary of what is fully implemented, what shortc
 
 These features are stable, tested, and deployed.
 
-| Feature                   | Status | Notes                                                                      |
-| ------------------------- | ------ | -------------------------------------------------------------------------- |
-| Authentication            |        | Session-based Bearer token auth with bcrypt password hashing.              |
-| Admin hardware management |        | Create, edit, delete, toggle Repair, sort/filter/paginate inventory.       |
-| Admin user management     |        | Create users, delete with self-delete / last-admin / active-rental guards. |
-| Hardware dashboard        |        | Sorting, status/brand filters, pagination.                                 |
-| Rental engine             |        | Rent/return flow with business-rule guards. Covered by backend tests.      |
-| Semantic search           |        | LLM search via OpenRouter with deterministic keyword fallback.             |
-| Database                  |        | SQLite + SQLAlchemy 2 + Alembic migrations.                                |
-| Backend tests             |        | 14 pytest tests covering rental rules and user-deletion guards.            |
-| Docker support            |        | Separate Dockerfiles for backend and frontend, plus docker-compose.        |
-| Railway deployment        |        | Live demo hosted at https://hardware-hub-production-3c1d.up.railway.app.   |
-| Rate limiting             |        | Slowapi applied to public endpoints.                                       |
-| Dataset audit             |        | Seed data validated and normalized before import.                          |
+| Feature                   | Status | Notes                                                                             |
+| ------------------------- | ------ | --------------------------------------------------------------------------------- |
+| Authentication            |        | Session-based Bearer token auth with bcrypt password hashing.                     |
+| Admin hardware management |        | Create, edit, delete, toggle Repair, sort/filter/paginate inventory.              |
+| Admin user management     |        | Create users, delete with self-delete / last-admin / active-rental guards.        |
+| Hardware dashboard        |        | Sorting, status/brand filters, pagination.                                        |
+| Rental engine             |        | Rent/return flow with business-rule guards. Covered by backend tests.             |
+| Semantic search           |        | LLM search via OpenRouter with deterministic keyword fallback.                    |
+| Database                  |        | SQLite + SQLAlchemy 2 + Alembic migrations.                                       |
+| Backend tests             |        | 20 pytest tests covering rental rules, hardware guards, and user-deletion guards. |
+| Docker support            |        | Separate Dockerfiles for backend and frontend, plus docker-compose.               |
+| Railway deployment        |        | Live demo hosted at https://hardware-hub-production-3c1d.up.railway.app.          |
+| Rate limiting             |        | Slowapi applied to public endpoints.                                              |
+| Dataset audit             |        | Seed data validated and normalized before import.                                 |
 
 ---
 
