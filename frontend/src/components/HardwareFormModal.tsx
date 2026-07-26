@@ -142,7 +142,14 @@ export function HardwareFormModal({
                 Status
               </label>
 
-              <div className="relative mt-1">
+              <div
+                className="relative mt-1"
+                title={
+                  initialValue?.status === "in_use"
+                    ? "Status cannot be changed while the device is rented"
+                    : undefined
+                }
+              >
                 <select
                   value={form.status}
                   onChange={(e) =>
@@ -151,7 +158,8 @@ export function HardwareFormModal({
                       status: e.target.value as HardwareStatus,
                     })
                   }
-                  className="appearance-none w-full rounded-lg border border-gray-300 px-3 pr-10 py-2 text-sm focus:border-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-300"
+                  disabled={initialValue?.status === "in_use"}
+                  className="appearance-none w-full rounded-lg border border-gray-300 px-3 pr-10 py-2 text-sm focus:border-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-300 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500"
                 >
                   {STATUS_OPTIONS.map((opt) => (
                     <option key={opt.value} value={opt.value}>
