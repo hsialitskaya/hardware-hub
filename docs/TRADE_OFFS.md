@@ -126,6 +126,17 @@ These improvements become relevant once the user base or catalog grows beyond th
 - **General API caching** — Cache frequently read endpoints such as the hardware dashboard and rental history. Redis or an in-memory cache would cut database load and improve response times.
 - **WebSockets for real-time reload** — Push inventory status updates and rental events to connected clients so the dashboard refreshes without manual reload.
 - **Async LLM processing with a queue** — Move LLM calls out of the request path and into a background worker (Celery, RQ, or FastAPI background tasks backed by Redis). This prevents long waits under load and lets the system handle many concurrent users gracefully.
+- **NGINX reverse proxy** — Place NGINX in front of the FastAPI backend to handle SSL termination, static file serving, gzip compression, rate limiting at the edge, and load balancing if multiple backend instances are deployed. This also hides the backend port and keeps the public surface clean.
+
+---
+
+## Bonus Ideas
+
+- **CI/CD pipeline** — GitHub Actions running pytest, lint, type checks, and Playwright e2e tests on every pull request, plus automatic Railway deploys from `main`.
+- **Email / Slack notifications** — Notify users when their rental is due, or alert admins when hardware is marked Repair.
+- **Reservation / waitlist** — Let users reserve hardware that is currently rented and get notified when it becomes available.
+- **Hardware barcode / QR integration** — Scan a device sticker to open its page or start a rental, making the tool practical in a real office.
+- **Soft deletes** — Mark hardware and users as deleted instead of removing rows. Keeps rental history intact and allows easy restore.
 
 ---
 
