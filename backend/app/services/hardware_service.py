@@ -1,3 +1,5 @@
+from datetime import date
+
 from sqlalchemy import func
 from sqlalchemy.orm import Session as DBSession
 
@@ -57,8 +59,27 @@ def _check_serial_number_conflict(
         )
 
 
+def _validate_purchase_date(purchase_date: date | None) -> None:
+    """Purchase date cannot be in the future."""
+    if purchase_date is not None and purchase_date > date.today():
+        raise BusinessRuleError("Purchase date cannot be in the future.")
+
+
+def _check_active_rental(hardware: Hardware, action: str) -> None:
+    """Some operations are not allowed while the device is actively rented."""
+    active_rental = next(
+        (rental for rental in hardware.rentals if rental.returned_at is None), None
+    )
+    if active_rental is not None:
+        raise BusinessRuleError(
+            f"Cannot {action} hardware while it is currently rented. "
+            "Wait for the user to return it first."
+        )
+
+
 def create_hardware(db: DBSession, data: HardwareCreate) -> Hardware:
     _check_serial_number_conflict(db, data.serial_number)
+    _validate_purchase_date(data.purchase_date)
     hardware = Hardware(**data.model_dump())
     db.add(hardware)
     db.commit()
@@ -69,6 +90,8 @@ def create_hardware(db: DBSession, data: HardwareCreate) -> Hardware:
 def update_hardware(db: DBSession, hardware_id: int, data: HardwareUpdate) -> Hardware:
     hardware = get_hardware_or_404(db, hardware_id)
     _check_serial_number_conflict(db, data.serial_number, exclude_id=hardware_id)
+    _validate_purchase_date(data.purchase_date)
+    _check_active_rental(hardware, "update")
 
     # Admin cannot mark a device as "repair" while it is actively rented.
     new_status = data.status
@@ -87,5 +110,6 @@ def update_hardware(db: DBSession, hardware_id: int, data: HardwareUpdate) -> Ha
 
 def delete_hardware(db: DBSession, hardware_id: int) -> None:
     hardware = get_hardware_or_404(db, hardware_id)
+    _check_active_rental(hardware, "delete")
     db.delete(hardware)
     db.commit()
