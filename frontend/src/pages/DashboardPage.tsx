@@ -109,6 +109,7 @@ export function DashboardPage() {
           status: statusFilter,
           brand: brandFilter,
           sort_by: sortKey,
+          sort_direction: sortDirection,
           page,
           page_size: pageSize,
         });
@@ -147,6 +148,7 @@ export function DashboardPage() {
       status: statusFilter,
       brand: brandFilter,
       sort_by: sortKey,
+      sort_direction: sortDirection,
       page,
       page_size: pageSize,
     });

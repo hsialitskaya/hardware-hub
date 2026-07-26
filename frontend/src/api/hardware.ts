@@ -5,6 +5,7 @@ export interface HardwareFilters {
   status?: HardwareStatus | "";
   brand?: string;
   sort_by?: string;
+  sort_direction?: "asc" | "desc";
   page?: number;
   page_size?: number;
 }
@@ -23,6 +24,7 @@ export async function listHardware(
   if (filters.status) params.status = filters.status;
   if (filters.brand) params.brand = filters.brand;
   if (filters.sort_by) params.sort_by = filters.sort_by;
+  if (filters.sort_direction) params.sort_direction = filters.sort_direction;
   if (filters.page) params.page = String(filters.page);
   if (filters.page_size) params.page_size = String(filters.page_size);
 
