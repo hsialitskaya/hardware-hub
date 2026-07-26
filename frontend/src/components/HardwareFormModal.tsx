@@ -17,11 +17,15 @@ const STATUS_OPTIONS: { value: HardwareStatus; label: string }[] = [
   { value: "repair", label: "Repair" },
 ];
 
+function todayInputValue(): string {
+  return new Date().toISOString().split("T")[0];
+}
+
 const EMPTY_FORM: HardwareInput = {
   name: "",
   brand: "",
   serial_number: "",
-  purchase_date: null,
+  purchase_date: todayInputValue(),
   status: "available",
   notes: "",
 };
