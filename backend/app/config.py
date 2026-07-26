@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     openrouter_api_key: str | None = None
     admin_email: str = "admin@booksy.com"
     admin_password: str = "ChangeMe123!"
+    cors_origins: str = "http://localhost:5173"
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 

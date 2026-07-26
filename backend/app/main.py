@@ -5,19 +5,28 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 
+from app.config import get_settings
 from app.routers import auth, hardware, rentals, search, users
 
 # Database schema is managed by Alembic migrations (see backend/alembic/).
 # Run `alembic upgrade head` before starting the app for the first time.
+
+settings = get_settings()
 
 limiter = Limiter(key_func=get_remote_address)
 app = FastAPI(title="Hardware Hub API", version="0.1.0")
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
+_cors_origins = [
+    origin.strip()
+    for origin in settings.cors_origins.split(",")
+    if origin.strip()
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=_cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
