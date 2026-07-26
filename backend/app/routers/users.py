@@ -13,6 +13,25 @@ router = APIRouter(prefix="/users", tags=["users"])
 limiter = Limiter(key_func=get_remote_address)
 
 
+@router.delete("/{user_id}", status_code=204)
+@limiter.limit("30/minute")
+def delete_user(
+    request: Request,
+    user_id: int,
+    db: DBSession = Depends(get_db),
+    admin: User = Depends(require_admin),
+) -> None:
+    """
+    Delete a user account.
+
+    Admin only.
+    """
+    try:
+        user_service.delete_user(db, user_id, admin)
+    except BusinessRuleError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+
+
 @router.get("/me", response_model=UserOut)
 @limiter.limit("60/minute")
 def get_current_user_profile(
@@ -72,41 +91,4 @@ def create_user(
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
 
 
-@router.delete("/{user_id}", status_code=204)
-@limiter.limit("30/minute")
-def delete_user(
-    request: Request,
-    user_id: int,
-    db: DBSession = Depends(get_db),
-    admin: User = Depends(require_admin),
-) -> None:
-    """
-    Delete a user account.
 
-    Safeguards:
-    - Cannot delete self.
-    - Cannot delete the last admin user.
-
-    Admin only.
-    """
-    from app.models.user import UserRole
-
-    if admin.id == user_id:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Cannot delete your own account"
-        )
-
-    user = db.query(User).filter(User.id == user_id).first()
-    if user is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-
-    admin_count = db.query(User).filter(User.role == UserRole.ADMIN).count()
-    if user.role == UserRole.ADMIN and admin_count == 1:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Cannot delete the last admin user"
-        )
-
-    db.delete(user)
-    db.commit()
