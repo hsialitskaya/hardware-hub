@@ -45,11 +45,16 @@ hardware-hub/
 │   ├── PLAN.md
 │   ├── FEATURES.md
 │   ├── AI_FEATURES_PLAN.md
+│   ├── AI_IMPLEMENTATION.md
+│   ├── AI_DEVELOPMENT_LOG.md
+│   ├── PROMPTS.md
+│   ├── TRADE_OFFS.md
+│   ├── RECRUITMENT_REQUIREMENTS.md
 │   ├── TESTING.md
 │   └── DEPLOYMENT.md
-├── alembic/           # Database migrations
-├── README.md
-└── railway.json
+├── docker-compose.yml
+├── railway.json
+└── README.md
 ```
 
 ## Quick Start
