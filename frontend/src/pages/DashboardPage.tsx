@@ -137,7 +137,7 @@ export function DashboardPage() {
     return () => {
       cancelled = true;
     };
-  }, [statusFilter, brandFilter, sortKey, page, pageSize, user]);
+  }, [statusFilter, brandFilter, sortKey, sortDirection, page, pageSize, user]);
 
   useEffect(() => {
     setSearchCache({});
