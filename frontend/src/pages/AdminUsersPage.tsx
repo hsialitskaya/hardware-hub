@@ -94,6 +94,7 @@ export function AdminUsersPage() {
       setDeletingUser(null);
       await loadData(page);
     } catch (err) {
+      setDeletingUser(null);
       setError(extractErrorMessage(err));
     } finally {
       setBusyId(null);
