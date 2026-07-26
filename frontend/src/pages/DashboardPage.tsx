@@ -68,7 +68,10 @@ export function DashboardPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
-  const [pendingId, setPendingId] = useState<number | null>(null);
+  const [pendingRentId, setPendingRentId] = useState<number | null>(null);
+  const [pendingReturnRentalId, setPendingReturnRentalId] = useState<
+    number | null
+  >(null);
 
   const [statusFilter, setStatusFilter] = useState<HardwareStatus | "">("");
   const [brandFilterInput, setBrandFilterInput] = useState("");
@@ -192,7 +195,7 @@ export function DashboardPage() {
   };
 
   const handleRent = async (hardwareId: number) => {
-    setPendingId(hardwareId);
+    setPendingRentId(hardwareId);
     setActionError(null);
     try {
       await rentHardware(hardwareId);
@@ -200,12 +203,12 @@ export function DashboardPage() {
     } catch (err) {
       setActionError(extractErrorMessage(err));
     } finally {
-      setPendingId(null);
+      setPendingRentId(null);
     }
   };
 
   const handleReturn = async (rentalId: number) => {
-    setPendingId(rentalId);
+    setPendingReturnRentalId(rentalId);
     setActionError(null);
     try {
       await returnHardware(rentalId);
@@ -213,7 +216,7 @@ export function DashboardPage() {
     } catch (err) {
       setActionError(extractErrorMessage(err));
     } finally {
-      setPendingId(null);
+      setPendingReturnRentalId(null);
     }
   };
 
@@ -459,9 +462,10 @@ export function DashboardPage() {
             <tbody>
               {displayedHardware.map((item, index) => {
                 const myRental = activeRentalByHardwareId.get(item.id);
-                const isPending =
-                  pendingId === item.id ||
-                  (myRental !== undefined && pendingId === myRental.id);
+                const isRentPending = pendingRentId === item.id;
+                const isReturnPending =
+                  myRental !== undefined &&
+                  pendingReturnRentalId === myRental.id;
                 return (
                   <tr
                     key={item.id}
@@ -486,20 +490,20 @@ export function DashboardPage() {
                             <button
                               type="button"
                               onClick={() => handleRent(item.id)}
-                              disabled={isPending}
+                              disabled={isRentPending}
                               className="rounded-xl bg-gray-950 px-5 py-2 text-sm font-medium text-white transition hover:bg-gray-900 disabled:opacity-60"
                             >
-                              {isPending ? "..." : "Rent"}
+                              {isRentPending ? "..." : "Rent"}
                             </button>
                           )}
                           {myRental && (
                             <button
                               type="button"
                               onClick={() => handleReturn(myRental.id)}
-                              disabled={isPending}
+                              disabled={isReturnPending}
                               className="rounded-xl border border-gray-300 px-5 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100 disabled:opacity-60"
                             >
-                              {isPending ? "..." : "Return"}
+                              {isReturnPending ? "..." : "Return"}
                             </button>
                           )}
                           {item.status !== "available" && !myRental && (
