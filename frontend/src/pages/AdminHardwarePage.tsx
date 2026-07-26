@@ -241,13 +241,8 @@ export function AdminHardwarePage() {
                           setEditingItem(item);
                           setIsFormOpen(true);
                         }}
-                        disabled={item.status === "in_use"}
-                        className="text-gray-500 transition hover:text-gray-900 disabled:opacity-40"
-                        title={
-                          item.status === "in_use"
-                            ? "Cannot edit while rented"
-                            : "Edit"
-                        }
+                        className="text-gray-500 transition hover:text-gray-900"
+                        title="Edit"
                       >
                         <EditIcon className="h-5 w-5" />
                       </button>
