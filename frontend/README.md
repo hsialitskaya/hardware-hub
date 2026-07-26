@@ -10,17 +10,17 @@ This frontend application communicates with the Hardware Hub FastAPI backend to 
 
 ### For All Users
 
-- Secure login with session-based authentication
-- Browse available hardware with sorting, filtering, and pagination
-- Rent available devices in a single action
-- View personal rental history and return active rentals
-- AI semantic search for discovering equipment using natural language
+- Secure login with session-based authentication.
+- Browse available hardware with sorting, filtering, and pagination.
+- Rent available devices in a single action.
+- View personal rental history and return active rentals.
+- AI semantic search for discovering equipment using natural language.
 
 ### For Administrators
 
-- Manage hardware inventory: add, edit, delete, and change repair status
-- Manage user accounts: create users and view the user directory
-- Full visibility into inventory status across all devices
+- Manage hardware inventory: add, edit, delete, and change repair status.
+- Manage user accounts: create users and view the user directory.
+- Full visibility into inventory status across all devices.
 
 ## Technology Stack
 
@@ -67,7 +67,7 @@ npm install
 npm run dev
 ```
 
-The application will start at `http://localhost:5173` and proxy API requests to `http://localhost:8000` by default.
+The application starts at `http://localhost:5173` and connects to `http://localhost:8000` by default.
 
 ### Build for Production
 
@@ -113,6 +113,7 @@ npm run preview
 ## Related Documentation
 
 - [Backend README](../backend/README.md)
-- [Architecture Overview](../ARCHITECTURE.md)
-- [Project Plan](../PLAN.md)
-- [Deployment Guide](../README.md#deployment)
+- [Architecture Overview](../docs/ARCHITECTURE.md)
+- [Project Plan](../docs/PLAN.md)
+- [Feature Walkthrough](../docs/FEATURES.md)
+- [Deployment Guide](../docs/DEPLOYMENT.md)

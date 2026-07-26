@@ -10,30 +10,31 @@ The backend follows a layered architecture: API routers validate HTTP requests, 
 
 ### Authentication and Users
 
-- Session-based authentication with Bearer tokens
-- Secure password hashing using bcrypt
-- Admin-only user creation
-- Role-based access control for protected endpoints
+- Session-based authentication with Bearer tokens.
+- Secure password hashing using bcrypt.
+- Admin-only user creation.
+- Role-based access control for protected endpoints.
+- User deletion guards: no self-deletion, no deletion of the last admin, and no deletion of users with active rentals.
 
 ### Hardware Management
 
-- Create, read, update, and delete hardware records
-- Track device status: Available, In Use, Repair
-- Enforce business rules, such as preventing repair status for actively rented devices
-- Validate unique serial numbers
+- Create, read, update, and delete hardware records.
+- Track device status: Available, In Use, Repair.
+- Enforce business rules, such as preventing repair status for actively rented devices.
+- Validate unique serial numbers.
 
 ### Rental Engine
 
-- Rent available hardware with strict status validation
-- Return rented hardware and restore Available status
-- List active and historical rentals per user
-- Prevent double rentals, unauthorized returns, and returns of already returned items
+- Rent available hardware with strict status validation.
+- Return rented hardware and restore Available status.
+- List active and historical rentals per user.
+- Prevent double rentals, unauthorized returns, and returns of already returned items.
 
 ### AI Search
 
-- Semantic search over the hardware catalog using natural language
-- LLM integration via OpenRouter with deterministic keyword fallback
-- In-memory response caching and rate limiting
+- Semantic search over the hardware catalog using natural language.
+- LLM integration via OpenRouter with deterministic keyword fallback.
+- In-memory response caching and rate limiting.
 
 ## Technology Stack
 
@@ -120,9 +121,9 @@ python -m app.seed
 uvicorn app.main:app --reload
 ```
 
-The API will be available at `http://localhost:8000`.
+The API is available at `http://localhost:8000`.
 
-Interactive documentation is automatically generated at:
+Interactive documentation:
 
 - Swagger UI: `http://localhost:8000/docs`
 - ReDoc: `http://localhost:8000/redoc`
@@ -136,50 +137,27 @@ docker run -p 8000:8000 --env-file .env hardware-hub-backend
 
 ## Testing
 
-The test suite covers the most critical business rules for the rental engine. Tests use an in-memory SQLite database and pytest fixtures for fast, isolated execution.
-
-### Run Tests
-
 ```bash
 pytest
 ```
 
-### Run with Coverage
+With coverage:
 
 ```bash
 pytest --cov=app --cov-report=term-missing
 ```
 
-### Critical Test Scenarios
-
-| Test | File | Description |
-|------|------|-------------|
-| Cannot rent repaired hardware | `tests/test_rental_rules.py` | Devices marked Repair cannot be rented |
-| Cannot rent in-use hardware | `tests/test_rental_rules.py` | Devices already rented cannot be rented again |
-| Cannot rent same hardware twice | `tests/test_rental_rules.py` | Sequential rental attempts on the same device fail |
-| Returning restores available status | `tests/test_rental_rules.py` | A returned device becomes Available again |
-| Cannot return other user's rental | `tests/test_rental_rules.py` | Users may only return their own rentals |
-| Cannot return already returned rental | `tests/test_rental_rules.py` | Double returns are rejected |
-
-### Adding New Tests
-
-Tests are organized in `backend/tests/`. Use the existing fixtures from `conftest.py` and follow the naming convention `test_<action>_<expected_behavior>`. Each test should remain independent and clean up after itself through the database transaction fixtures.
-
-## Design Decisions
-
-- **Services over fat routers**: business rules live in `app/services/`, not in API controllers, which makes the logic reusable and easy to unit test.
-- **Pydantic schemas**: request and response shapes are explicit, enabling automatic OpenAPI documentation and frontend type generation.
-- **Alembic migrations**: all schema changes are versioned, ensuring consistent deployments across environments.
-- **Deterministic AI fallback**: if the LLM is unavailable or the API key is missing, semantic search falls back to keyword matching.
-- **Rate limiting**: public endpoints use Slowapi to protect against abuse.
+The test suite covers critical rental business rules and user-management guards. For a full list, see [TESTING.md](../docs/TESTING.md).
 
 ## API Endpoints
 
 | Method | Path | Description | Access |
 |--------|------|-------------|--------|
 | POST | `/auth/login` | Authenticate and receive session token | Public |
+| GET | `/users/me` | Current user profile | Authenticated |
 | GET | `/users` | List all users | Admin |
 | POST | `/users` | Create a new user | Admin |
+| DELETE | `/users/{id}` | Delete a user | Admin |
 | GET | `/hardware` | List hardware with filters | Authenticated |
 | POST | `/hardware` | Add new hardware | Admin |
 | PATCH | `/hardware/{id}` | Update hardware | Admin |
@@ -190,9 +168,19 @@ Tests are organized in `backend/tests/`. Use the existing fixtures from `conftes
 | POST | `/search` | AI semantic search | Authenticated |
 | GET | `/health` | Health check | Public |
 
+## Design Decisions
+
+- **Services over fat routers**: business rules live in `app/services/`, not in API controllers, which makes the logic reusable and easy to unit test.
+- **Pydantic schemas**: request and response shapes are explicit, enabling automatic OpenAPI documentation and frontend type generation.
+- **Alembic migrations**: all schema changes are versioned, ensuring consistent deployments across environments.
+- **Deterministic AI fallback**: if the LLM is unavailable or the API key is missing, semantic search falls back to keyword matching.
+- **Rate limiting**: public endpoints use Slowapi to protect against abuse.
+
 ## Related Documentation
 
 - [Frontend README](../frontend/README.md)
-- [Architecture Overview](../ARCHITECTURE.md)
-- [Project Plan](../PLAN.md)
-- [Deployment Guide](../README.md#deployment)
+- [Architecture Overview](../docs/ARCHITECTURE.md)
+- [Project Plan](../docs/PLAN.md)
+- [Feature Walkthrough](../docs/FEATURES.md)
+- [Testing Guide](../docs/TESTING.md)
+- [Deployment Guide](../docs/DEPLOYMENT.md)
