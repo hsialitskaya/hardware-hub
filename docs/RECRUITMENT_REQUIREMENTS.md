@@ -108,7 +108,7 @@ This document maps every requirement recruitment task to the corresponding imple
 
 ## Additional Highlights
 
-- **Testing:** 20 backend tests covering rental, hardware-management, and user-management critical paths.
+- **Testing:** 21 backend tests covering rental, hardware-management, and user-management critical paths.
 - **Rate limiting:** Slowapi protects public endpoints.
 - **Responsive UI:** Works on mobile, tablet, and desktop.
 - **Docker support:** Both frontend and backend have Dockerfiles and a `docker-compose.yml`.

@@ -56,16 +56,33 @@ class TestCreateHardware:
 class TestUpdateHardware:
     """Test update_hardware guards."""
 
-    def test_cannot_update_hardware_while_rented(
+    def test_can_update_name_while_rented(
         self,
         test_db: Session,
         test_user: User,
         test_hardware_available: Hardware,
     ):
-        """CRITICAL: Cannot edit hardware that is actively rented."""
+        """Editing non-status fields of rented hardware is allowed."""
         rent_hardware(test_db, test_hardware_available.id, test_user)
 
         update = HardwareUpdate(name="Changed Name")
+        updated = hardware_service.update_hardware(
+            test_db, test_hardware_available.id, update
+        )
+
+        assert updated.name == "Changed Name"
+        assert updated.status == HardwareStatus.IN_USE
+
+    def test_cannot_change_status_while_rented(
+        self,
+        test_db: Session,
+        test_user: User,
+        test_hardware_available: Hardware,
+    ):
+        """CRITICAL: Status of actively rented hardware cannot be changed."""
+        rent_hardware(test_db, test_hardware_available.id, test_user)
+
+        update = HardwareUpdate(status=HardwareStatus.REPAIR)
 
         with pytest.raises(BusinessRuleError) as exc_info:
             hardware_service.update_hardware(test_db, test_hardware_available.id, update)

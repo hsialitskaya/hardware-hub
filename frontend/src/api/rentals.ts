@@ -20,12 +20,24 @@ export async function returnHardware(rentalId: number): Promise<Rental> {
   return data;
 }
 
+export interface MyRentalsFilters {
+  page?: number;
+  page_size?: number;
+  sort_by?: string;
+  sort_direction?: "asc" | "desc";
+}
+
 export async function myRentals(
-  page: number = 1,
-  pageSize: number = 10,
+  filters: MyRentalsFilters = {},
 ): Promise<PaginatedRentals> {
+  const params: Record<string, string> = {};
+  if (filters.page) params.page = String(filters.page);
+  if (filters.page_size) params.page_size = String(filters.page_size);
+  if (filters.sort_by) params.sort_by = filters.sort_by;
+  if (filters.sort_direction) params.sort_direction = filters.sort_direction;
+
   const { data } = await apiClient.get<PaginatedRentals>("/rentals/me", {
-    params: { page: String(page), page_size: String(pageSize) },
+    params,
   });
   return data;
 }

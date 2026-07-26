@@ -53,8 +53,17 @@ def my_rentals(
     user: User = Depends(get_current_user),
     page: int = Query(default=1, ge=1),
     page_size: int = Query(default=10, ge=1, le=100),
+    sort_by: str | None = None,
+    sort_direction: str | None = Query(default=None, pattern="^(asc|desc)$"),
 ):
-    items, total = rental_service.list_my_rentals(db, user, page=page, page_size=page_size)
+    items, total = rental_service.list_my_rentals(
+        db,
+        user,
+        sort_by=sort_by,
+        sort_direction=sort_direction,
+        page=page,
+        page_size=page_size,
+    )
     return PaginatedRentalOut(
         items=[RentalOut.model_validate(item) for item in items],
         total=total,

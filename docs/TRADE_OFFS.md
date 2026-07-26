@@ -15,7 +15,7 @@ These features are stable, tested, and deployed.
 | Rental engine             |        | Rent/return flow with business-rule guards. Covered by backend tests.             |
 | Semantic search           |        | LLM search via OpenRouter with deterministic keyword fallback.                    |
 | Database                  |        | SQLite + SQLAlchemy 2 + Alembic migrations.                                       |
-| Backend tests             |        | 20 pytest tests covering rental rules, hardware guards, and user-deletion guards. |
+| Backend tests             |        | 21 pytest tests covering rental rules, hardware guards, and user-deletion guards. |
 | Docker support            |        | Separate Dockerfiles for backend and frontend, plus docker-compose.               |
 | Railway deployment        |        | Live demo hosted at https://hardware-hub-production-3c1d.up.railway.app.          |
 | Rate limiting             |        | Slowapi applied to public endpoints.                                              |

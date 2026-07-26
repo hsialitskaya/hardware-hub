@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { myRentals, returnHardware } from "../api/rentals";
 import { listHardware } from "../api/hardware";
 import { Spinner } from "../components/Spinner";
@@ -29,7 +29,12 @@ export function MyRentalsPage() {
     setError(null);
     try {
       const [rentalList, hardwareList] = await Promise.all([
-        myRentals(currentPage, pageSize),
+        myRentals({
+          page: currentPage,
+          page_size: pageSize,
+          sort_by: sortKey,
+          sort_direction: sortDirection,
+        }),
         listHardware({ page_size: 100 }),
       ]);
       setRentals(rentalList.items);
@@ -45,7 +50,13 @@ export function MyRentalsPage() {
 
   useEffect(() => {
     void loadData(1);
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sortKey, sortDirection, pageSize]);
+
+  useEffect(() => {
+    void loadData(page);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
 
   const handleReturn = async (rentalId: number) => {
     setPendingId(rentalId);
@@ -61,30 +72,8 @@ export function MyRentalsPage() {
   };
 
   const handlePageChange = (nextPage: number) => {
-    void loadData(nextPage);
+    setPage(nextPage);
   };
-
-  const sortedRentals = useMemo(() => {
-    const items = [...rentals];
-    items.sort((a, b) => {
-      let aValue: string;
-      let bValue: string;
-
-      if (sortKey === "name" || sortKey === "brand") {
-        const aHw = hardwareById.get(a.hardware_id);
-        const bHw = hardwareById.get(b.hardware_id);
-        aValue = (aHw?.[sortKey] ?? "") as string;
-        bValue = (bHw?.[sortKey] ?? "") as string;
-      } else {
-        aValue = a[sortKey] ?? "";
-        bValue = b[sortKey] ?? "";
-      }
-
-      const comparison = String(aValue).localeCompare(String(bValue));
-      return sortDirection === "asc" ? comparison : -comparison;
-    });
-    return items;
-  }, [rentals, hardwareById, sortKey, sortDirection]);
 
   const toggleSort = (key: SortKey) => {
     if (sortKey === key) {
@@ -144,7 +133,7 @@ export function MyRentalsPage() {
               </tr>
             </thead>
             <tbody>
-              {sortedRentals.map((rental, index) => {
+              {rentals.map((rental, index) => {
                 const hw = hardwareById.get(rental.hardware_id);
                 return (
                   <tr

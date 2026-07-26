@@ -91,13 +91,17 @@ def update_hardware(db: DBSession, hardware_id: int, data: HardwareUpdate) -> Ha
     hardware = get_hardware_or_404(db, hardware_id)
     _check_serial_number_conflict(db, data.serial_number, exclude_id=hardware_id)
     _validate_purchase_date(data.purchase_date)
-    _check_active_rental(hardware, "update")
 
-    # Admin cannot mark a device as "repair" while it is actively rented.
+    # Admin can edit details of rented hardware, but cannot change its status
+    # until it is returned. This keeps the rental assignment consistent.
     new_status = data.status
-    if new_status is not None and new_status == HardwareStatus.REPAIR and hardware.status == HardwareStatus.IN_USE:
+    if (
+        new_status is not None
+        and new_status != hardware.status
+        and hardware.status == HardwareStatus.IN_USE
+    ):
         raise BusinessRuleError(
-            "Cannot set device to repair while it is currently rented. "
+            "Cannot change device status while it is currently rented. "
             "Wait for the user to return it first."
         )
 
