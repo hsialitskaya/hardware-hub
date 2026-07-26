@@ -96,6 +96,7 @@ The suite includes critical rental business-rule tests plus user-management guar
 | [docs/AI_FEATURES_PLAN.md](docs/AI_FEATURES_PLAN.md)                 | Roadmap for Smart Assistant and Inventory Auditor features.                        |
 | [docs/AI_IMPLEMENTATION.md](docs/AI_IMPLEMENTATION.md)               | How semantic search is implemented, the prompt design, and LLM safety guards.      |
 | [docs/AI_DEVELOPMENT_LOG.md](docs/AI_DEVELOPMENT_LOG.md)             | How AI tools were used, prompt trail, dataset audit, and corrections made.         |
+| [docs/PROMPTS.md](docs/PROMPTS.md)                                   | Reconstructed prompt trail with context notes (Polish and English prompts).        |
 | [docs/TESTING.md](docs/TESTING.md)                                   | Test suite overview, critical tests, and instructions for running pytest.          |
 | [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)                             | Step-by-step Railway deployment guide and security checklist.                      |
 | [docs/RECRUITMENT_REQUIREMENTS.md](docs/RECRUITMENT_REQUIREMENTS.md) | Checklist mapping every recruitment requirement to implementation artifacts.       |
