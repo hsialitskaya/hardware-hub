@@ -126,6 +126,44 @@ Critical tests implemented:
 - Deployment guide.
 - AI feature roadmap.
 
+### 10. Dataset Audit
+
+Before importing the initial seed data, I reviewed the dataset and found several quality issues. The import process now validates and normalizes records so invalid data cannot enter the system.
+
+Detected issues:
+
+#### Duplicate IDs
+
+- Duplicate ID = 4
+
+#### Misspelled Brand
+
+- `Appel` → corrected to `Apple`
+
+#### Invalid Date Format
+
+- `22-05-2023` → normalized to `2023-05-22`
+
+#### Future Purchase Date
+
+- `2027-10-10` — rejected as invalid.
+
+#### Missing Purchase Date
+
+- `purchaseDate = null` — rejected.
+
+#### Empty Brand
+
+- `brand = ""` — rejected.
+
+#### Unknown Status
+
+- `status = Unknown` — not supported by business rules, mapped to a valid status during import.
+
+#### Historical Notes
+
+Several devices contain notes or history. This could be a future improvement area, such as using AI to summarize hardware history.
+
 ## Nice-to-Have Items Implemented
 
 - Responsive layout for mobile and desktop.
@@ -270,14 +308,14 @@ hardware-hub/
 
 ## How This Plan Differs from the AI Suggestions
 
-| Area | AI Suggestion | Final Decision |
-|------|---------------|----------------|
-| Frontend table | TanStack Table | Plain HTML table with Tailwind CSS for simplicity |
-| Deployment | Vercel for both | Railway for full-stack deployment |
+| Area             | AI Suggestion        | Final Decision                                          |
+| ---------------- | -------------------- | ------------------------------------------------------- |
+| Frontend table   | TanStack Table       | Plain HTML table with Tailwind CSS for simplicity       |
+| Deployment       | Vercel for both      | Railway for full-stack deployment                       |
 | AI feature scope | Semantic Search only | Semantic Search now, with Assistant and Auditor planned |
-| Authentication | JWT suggested | Session-based tokens for MVP simplicity |
-| Search approach | LLM-based | LLM-based with deterministic keyword fallback |
-| User deletion | Optional | Implemented with active-rental guard |
+| Authentication   | JWT suggested        | Session-based tokens for MVP simplicity                 |
+| Search approach  | LLM-based            | LLM-based with deterministic keyword fallback           |
+| User deletion    | Optional             | Implemented with active-rental guard                    |
 
 ## Summary
 

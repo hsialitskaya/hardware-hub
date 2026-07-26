@@ -168,43 +168,6 @@ hardware-hub/
 └── PLAN.md
 ```
 
-## AI Dataset Audit
-
-AI helped identify potential data quality issues in the provided seed dataset:
-
-### Duplicate IDs
-
-- Duplicate ID = 4
-
-### Misspelled Brand
-
-- Appel → Apple
-
-### Invalid Date Format
-
-- 22-05-2023
-- Expected: 2023-05-22
-
-### Future Purchase Date
-
-- 2027-10-10 — likely invalid.
-
-### Missing Purchase Date
-
-- purchaseDate = null
-
-### Empty Brand
-
-- brand = ""
-
-### Unknown Status
-
-- status = Unknown — not supported by business rules.
-
-### Historical Notes
-
-Several devices contain notes or history. AI suggested this could be a future improvement area, such as using AI to summarize hardware history.
-
 ## Notes
 
 This plan was used as a starting point. Not every suggestion was adopted verbatim. The final implementation reflects my own decisions based on time constraints, project scope, and maintainability goals.

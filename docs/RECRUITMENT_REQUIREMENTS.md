@@ -15,7 +15,7 @@ This document maps every requirement recruitment task to the corresponding imple
   - `feat(deploy): ...`
   - `docs(...): ...`
   - `fix(...): ...`
-- The history reflects the real development flow, including AI-assisted planning and iterative fixes.
+- The history reflects the real development flow, including iterative planning, a manual dataset audit, and incremental fixes.
 
 ## 2. Comprehensive README.md with Setup Instructions
 
