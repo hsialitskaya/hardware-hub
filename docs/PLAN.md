@@ -1,55 +1,56 @@
-# Hardware Hub – Project Plan
+# Hardware Hub – Final Project Plan
 
-> **Project:** AI-Native Hardware Hub
-> **Goal:** Build an internal application for managing, renting, and maintaining company hardware while demonstrating an AI-first engineering workflow.
-
----
-
-# Project Objectives
-
-The project focuses on three main pillars:
-
-1. Hardware & User Management
-2. Rental Business Logic
-3. AI-Native Feature
-
-The priority is to deliver a stable MVP with clean architecture, good documentation, and transparent engineering decisions.
+> This document describes the final implementation plan for the Hardware Hub recruitment task. It is based on the AI-suggested plan but includes my own decisions, adjustments, and additions.
+>
+> The original AI suggestions are preserved in [PLAN_AI_SUGGESTIONS.md](PLAN_AI_SUGGESTIONS.md).
 
 ---
 
-# Must Have Features
+## Project
 
-## 1. Authentication
+**Name:** Hardware Hub
+**Goal:** Build an internal application for managing, renting, and maintaining company hardware while demonstrating an AI-first engineering workflow.
 
-- Login page
-- Admin authentication
-- Only Admin can create user accounts
-- Only previously created users can log in
-- Session persistence (MVP)
+## Final Objectives
 
----
+Deliver a stable MVP with three pillars:
 
-## 2. Hardware Management (Admin)
+1. **Management Engine** — Admin and user management.
+2. **Rental Engine** — Rent/return flow with strict business-rule guards.
+3. **AI-Native Layer** — Semantic search using an LLM.
 
-- Add new hardware
-- Delete hardware
-- Edit hardware information
-- Change Repair status
-- View complete inventory
+The priority is clean architecture, good documentation, transparent decisions, and a working live demo.
 
----
+## Implemented Must-Have Features
 
-## 3. User Management (Admin)
+### 1. Authentication
 
-- Create user
-- Delete user (optional if time allows)
-- View users
+- Login page for all users.
+- Session-based authentication using Bearer tokens stored in `localStorage`.
+- Only Admin can create user accounts.
+- Only previously created users can log in.
+- 401 responses redirect unauthenticated users to `/login`.
 
----
+### 2. Hardware Management (Admin)
 
-## 4. Hardware Dashboard
+- Add new hardware with Name, Brand, Serial Number, Purchase Date, Status, and Notes.
+- Edit hardware information.
+- Delete hardware.
+- Toggle Repair status, with a guard that prevents marking actively rented devices as Repair.
+- View complete inventory.
 
-Display a table containing:
+### 3. User Management (Admin)
+
+- Create new user accounts.
+- View all users.
+- Delete users, with three safeguards:
+  - Cannot delete yourself.
+  - Cannot delete the last admin.
+  - Cannot delete a user with active rentals.
+
+### 4. Hardware Dashboard
+
+Table columns:
 
 - Name
 - Brand
@@ -58,103 +59,102 @@ Display a table containing:
 
 Additional functionality:
 
-- Sorting
-- Filtering
-- Search
+- Sorting by Name, Brand, Purchase Date, and Status, with ascending/descending order.
+- Filtering by status.
+- Filtering by brand.
+- Pagination.
 
----
+### 5. Rental Engine
 
-## 5. Rental Engine
+Users can:
 
-Users should be able to:
+- Rent available hardware.
+- Return hardware they rented themselves.
+- View personal rental history.
 
-- Rent hardware
-- Return hardware
+Business-rule guards:
 
-Business validation:
+- Only Available devices can be rented.
+- Repair devices cannot be rented.
+- In Use devices cannot be rented.
+- Unknown statuses are rejected.
+- Returning a device restores its Available status.
+- Users cannot return rentals belonging to others.
+- Already returned rentals cannot be returned again.
 
-- Only Available devices can be rented
-- Repair devices cannot be rented
-- Unknown status cannot be rented
-- Already rented devices cannot be rented
-- Returning changes status back to Available
+### 6. AI Feature
 
----
+**Chosen feature:** Semantic Search.
 
-## 6. AI Feature
-
-Chosen feature:
-
-- Semantic Search
-
-Example:
+Users type natural-language queries, for example:
 
 > "I need something to test Android applications."
 
-Returns:
+The backend sends the catalog to an LLM via OpenRouter and returns matching hardware with a reason for each match. If the AI service is unavailable or the API key is missing, the system falls back to keyword search.
 
-- Samsung Galaxy
-- Pixel
-- Android devices
+### 7. Database
 
----
+- SQLite for portability and ease of review.
+- SQLAlchemy ORM with typed `Mapped` columns.
+- Alembic migrations for schema versioning.
+- Initial seed data including an admin user and sample hardware.
 
-## 7. Database
+### 8. Testing
 
-- SQLite
-- Initial seed data
-- SQLAlchemy ORM
+Critical tests implemented:
 
----
+- Cannot rent repaired hardware.
+- Cannot rent in-use hardware.
+- Cannot rent the same hardware twice.
+- Returning hardware restores Available status.
+- Cannot return other users' rentals.
+- Cannot return already returned rentals.
+- Cannot delete users with active rentals.
+- Cannot delete the last admin.
+- Cannot delete yourself.
 
-## 8. Testing
+### 9. Documentation
 
-Minimum three critical tests:
+- Root README with live demo link and feature overview.
+- Frontend README.
+- Backend README.
+- Architecture overview.
+- This final project plan.
+- AI suggestions plan.
+- Feature walkthrough.
+- Testing guide.
+- Deployment guide.
+- AI feature roadmap.
 
-- Cannot rent repaired hardware
-- Cannot rent unavailable hardware
-- Returning hardware restores Available status
+## Nice-to-Have Items Implemented
 
----
+- Responsive layout for mobile and desktop.
+- Pagination on all list views.
+- Loading states.
+- Docker support for both frontend and backend.
+- Railway deployment configuration.
+- Rate limiting on public endpoints.
+- Clean error messages on the frontend.
 
-## 9. Documentation
+## Deferred Ideas
 
-- README
-- Setup instructions
-- Architecture overview
-- AI Development Log
-- Prompt history
-- Trade-offs
-- Future improvements
+- Dark mode.
+- Toast notifications.
+- User profile page.
+- Smart Assistant chat interface.
+- Inventory Auditor.
+- JWT authentication (kept session-based for MVP simplicity).
+- Vector-based embeddings for search.
 
----
+## Final Business Rules
 
-# Nice to Have
-
-If time permits:
-
-- Responsive layout
-- Dark mode
-- Pagination
-- Better error messages
-- Loading states
-- Toast notifications
-- Docker support
-- Deployment
-- User profile page
-
----
-
-# Business Rules
-
-## Authentication
+### Authentication
 
 - Only Admin can create users.
 - Only registered users may access the system.
+- Passwords are hashed with bcrypt and never returned by the API.
 
----
-
-## Hardware
+### Hardware
 
 Every hardware item must have:
 
@@ -169,9 +169,7 @@ Allowed statuses:
 - In Use
 - Repair
 
----
-
-## Rental
+### Rental
 
 A user can rent hardware only when:
 
@@ -179,276 +177,108 @@ A user can rent hardware only when:
 
 A user cannot rent hardware when:
 
-- Status is Repair
-- Status is In Use
-- Status is Unknown
+- Status is Repair.
+- Status is In Use.
+- Status is Unknown.
 
----
-
-## Repair
+### Repair
 
 Hardware marked as Repair:
 
-- cannot be rented
-- remains visible in inventory
-- can later be marked Available
+- Cannot be rented.
+- Remains visible in inventory.
+- Can later be marked Available.
+- Cannot be set to Repair while actively rented.
 
----
+## Final Technical Stack
 
-## Dashboard
+### Frontend
 
-The dashboard should allow users to:
+- React 19
+- TypeScript
+- Vite 8
+- Tailwind CSS 4
+- React Router 7
+- Axios
 
-- browse equipment
-- search equipment
-- filter by status
-- sort by any column
+### Backend
 
----
+- FastAPI
+- SQLAlchemy 2
+- Pydantic 2
+- Alembic
+- Slowapi (rate limiting)
 
-# AI Feature Plan
+### Database
 
-Chosen solution:
+- SQLite (file-based)
 
-## Semantic Search
+### AI
 
-Users can search using natural language.
+- OpenRouter API using the OpenAI SDK
+- Model: `google/gemini-2.5-flash-lite`
+- Keyword fallback when AI is unavailable
 
-Examples:
+### Testing
 
-- "I need a laptop."
-- "Device for Android testing."
-- "Apple hardware."
-- "Wireless headphones."
+- pytest with in-memory SQLite fixtures
 
-The LLM converts the request into relevant hardware results.
+### Deployment
 
----
+- Railway (full-stack)
+- Docker for local and production builds
 
-# Dataset Audit
+## Final Project Structure
 
-The initial dataset was reviewed before importing it into the database.
-The data import process includes validation and normalization to prevent invalid records from entering the system.
-
-AI helped identify potential data quality issues:
-
-- duplicate IDs,
-- incorrect brand names,
-- inconsistent date formats,
-- missing values.
-
-Detected issues:
-
-## Duplicate IDs
-
-- Duplicate ID = 4
-
----
-
-## Misspelled Brand
-
-Appel
-
-↓
-
-Apple
-
----
-
-## Invalid Date Format
-
-22-05-2023
-
-Expected:
-
-2023-05-22
-
----
-
-## Future Purchase Date
-
-2027-10-10
-
-Likely invalid.
-
----
-
-## Missing Purchase Date
-
-purchaseDate = null
-
----
-
-## Empty Brand
-
-brand = ""
-
----
-
-## Unknown Status
-
-status = Unknown
-
-Not supported by business rules.
-
----
-
-## Historical Notes
-
-Several devices contain notes/history.
-
-Potential future improvement:
-
-Use AI to summarize hardware history.
-
----
-
-# Technical Stack
-
-## Frontend Technologies
-
-- React  
-  A JavaScript library for building user interfaces using reusable components.
-
-- Vite  
-  A fast tool for creating, running, and building frontend applications.
-
-- TypeScript  
-  A JavaScript extension that adds types and helps prevent errors in the code.
-
-- React Router  
-  A library used for navigation between pages in React applications.
-
-- TanStack Table  
-  A library for creating advanced and customizable tables with features like sorting, filtering, and pagi
-
----
-
-## Backend Technologies
-
-- FastAPI  
-  A modern Python framework for building fast and simple web APIs.
-
-- SQLAlchemy  
-  A Python library for working with databases using objects instead of writing only SQL queries.
-
-- Pydantic  
-  A Python library used for data validation and managing data models with type checking.
-
----
-
-## Database
-
-- SQLite  
-  A lightweight database stored in a single file, used for simple and fast data storage without requiring a separate database server.
-
----
-
-## AI
-
-OpenAI API
-
-Semantic Search
-
----
-
-## Testing
-
-pytest
-
----
-
-## Deployment
-
-Frontend
-
-- Vercel
-
-Backend
-
-- Vercel
-
----
-
-# Planned Project Structure
-
-```
+```text
 hardware-hub/
-
 ├── backend/
+│   ├── alembic/
 │   ├── app/
-│   ├── models/
-│   ├── routers/
-│   ├── services/
-│   ├── database.py
-│   └── main.py
-│
+│   │   ├── models/
+│   │   ├── routers/
+│   │   ├── schemas/
+│   │   ├── services/
+│   │   └── ...
+│   ├── tests/
+│   ├── Dockerfile
+│   └── requirements.txt
 ├── frontend/
 │   ├── src/
-│   ├── components/
-│   ├── pages/
-│   ├── hooks/
-│   └── services/
-│
+│   │   ├── api/
+│   │   ├── components/
+│   │   ├── context/
+│   │   ├── hooks/
+│   │   ├── pages/
+│   │   ├── types/
+│   │   └── utils/
+│   ├── Dockerfile
+│   └── package.json
 ├── docs/
-│   ├── prompts.md
-│   └── architecture.png
-│
-├── README.md
-└── PLAN.md
+│   ├── ARCHITECTURE.md
+│   ├── PLAN.md
+│   ├── PLAN_AI_SUGGESTIONS.md
+│   ├── FEATURES.md
+│   ├── AI_FEATURES_PLAN.md
+│   ├── TESTING.md
+│   └── DEPLOYMENT.md
+├── docker-compose.yml
+├── railway.json
+├── frontend/railway.json
+└── README.md
 ```
 
----
+## How This Plan Differs from the AI Suggestions
 
-# Risks & Assumptions
+| Area | AI Suggestion | Final Decision |
+|------|---------------|----------------|
+| Frontend table | TanStack Table | Plain HTML table with Tailwind CSS for simplicity |
+| Deployment | Vercel for both | Railway for full-stack deployment |
+| AI feature scope | Semantic Search only | Semantic Search now, with Assistant and Auditor planned |
+| Authentication | JWT suggested | Session-based tokens for MVP simplicity |
+| Search approach | LLM-based | LLM-based with deterministic keyword fallback |
+| User deletion | Optional | Implemented with active-rental guard |
 
-Possible challenges:
+## Summary
 
-- OpenAI integration
-- Dataset inconsistencies
-- Time limitation (4–5 hours)
-- Authentication kept intentionally simple for MVP
-
----
-
-# Future Improvements
-
-If an additional 24 hours were available:
-
-1. JWT authentication
-2. User roles & permissions
-3. Rental history
-4. AI Inventory Auditor
-5. Notifications
-6. Better UI/UX
-7. Full Docker setup
-8. CI/CD pipeline
-9. Logging & monitoring
-10. Production deployment
-
----
-
-# Open Questions
-
-- Should Admin be able to rent hardware?
-- Can one user rent multiple devices?
-- Should duplicate IDs be automatically fixed?
-- Should invalid records be imported or rejected?
-- How should Unknown status be handled?
-- Should purchase dates be validated during import?
-
----
-
-# Notes During Development
-
-## Decisions
-
-- Keep MVP simple.
-- Prioritize correctness over additional features.
-- Document every shortcut.
-- Commit frequently.
-- Use AI as a development partner, not as an autopilot.
-
----
-
-The goal is not to build the biggest application, but the best engineered MVP within the given time.
+The final plan keeps the core MVP lightweight and deployable while leaving clear extension points for future AI features. Every must-have requirement from the recruitment task is implemented, tested, and documented.
