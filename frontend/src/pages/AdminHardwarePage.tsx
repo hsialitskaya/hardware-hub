@@ -13,6 +13,9 @@ import { ConfirmDialog } from "../components/ConfirmDialog";
 import { extractErrorMessage } from "../utils/errors";
 import type { Hardware, HardwareInput } from "../types";
 
+type SortKey = "name" | "brand" | "purchase_date" | "status";
+type SortDirection = "asc" | "desc";
+
 function EditIcon({ className }: { className?: string }) {
   return (
     <svg
@@ -100,6 +103,9 @@ export function AdminHardwarePage() {
   const [deletingItem, setDeletingItem] = useState<Hardware | null>(null);
   const [busyId, setBusyId] = useState<number | null>(null);
 
+  const [sortKey, setSortKey] = useState<SortKey>("name");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+
   const loadData = async (currentPage: number = page) => {
     setIsLoading(true);
     setError(null);
@@ -107,6 +113,8 @@ export function AdminHardwarePage() {
       const data = await listHardware({
         page: currentPage,
         page_size: pageSize,
+        sort_by: sortKey,
+        sort_direction: sortDirection,
       });
       setHardware(data.items);
       setTotalItems(data.total);
@@ -120,7 +128,7 @@ export function AdminHardwarePage() {
 
   useEffect(() => {
     void loadData(1);
-  }, []);
+  }, [sortKey, sortDirection]);
 
   const handleCreateOrUpdate = async (payload: HardwareInput) => {
     if (editingItem) {
@@ -164,6 +172,28 @@ export function AdminHardwarePage() {
     void loadData(nextPage);
   };
 
+  const toggleSort = (key: SortKey) => {
+    if (sortKey === key) {
+      setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setSortKey(key);
+      setSortDirection("asc");
+    }
+    setPage(1);
+  };
+
+  const sortableHeader = (key: SortKey, label: string) => (
+    <th
+      onClick={() => toggleSort(key)}
+      className="cursor-pointer px-6 py-4 font-semibold"
+    >
+      <div className="flex items-center gap-1">
+        {label}
+        {sortKey === key && <span>{sortDirection === "asc" ? "↑" : "↓"}</span>}
+      </div>
+    </th>
+  );
+
   return (
     <div>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
@@ -204,11 +234,11 @@ export function AdminHardwarePage() {
           <table className="min-w-full text-base">
             <thead>
               <tr className="border-b border-gray-200 text-left text-gray-900">
-                <th className="px-6 py-4 font-semibold">Device Name</th>
-                <th className="px-6 py-4 font-semibold">Brand</th>
+                {sortableHeader("name", "Device Name")}
+                {sortableHeader("brand", "Brand")}
                 <th className="px-6 py-4 font-semibold">Serial Number</th>
-                <th className="px-6 py-4 font-semibold">Date Added</th>
-                <th className="px-6 py-4 font-semibold">Status</th>
+                {sortableHeader("purchase_date", "Date Added")}
+                {sortableHeader("status", "Status")}
                 <th className="px-6 py-4 text-right font-semibold">Actions</th>
               </tr>
             </thead>

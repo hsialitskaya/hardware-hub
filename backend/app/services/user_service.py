@@ -6,6 +6,30 @@ from app.schemas.user import UserCreate
 from app.security import hash_password
 
 
+DEFAULT_PAGE_SIZE = 10
+
+
+def list_users(
+    db: DBSession,
+    page: int = 1,
+    page_size: int = DEFAULT_PAGE_SIZE,
+    sort_by: str | None = None,
+    sort_direction: str | None = None,
+) -> tuple[list[User], int]:
+    """List all users, optionally sorted by a whitelisted column."""
+    query = db.query(User)
+    if sort_by in {"email", "role", "created_at"}:
+        column = getattr(User, sort_by)
+        if sort_direction == "desc":
+            query = query.order_by(column.desc())
+        else:
+            query = query.order_by(column.asc())
+
+    total = query.count()
+    items = query.offset((page - 1) * page_size).limit(page_size).all()
+    return items, total
+
+
 def create_user(db: DBSession, payload: UserCreate) -> User:
     """Create a new user account.
 

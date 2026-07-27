@@ -17,9 +17,18 @@ export interface PaginatedUsers {
 export async function listUsers(
   page: number = 1,
   pageSize: number = 10,
+  sortBy?: string,
+  sortDirection?: "asc" | "desc",
 ): Promise<PaginatedUsers> {
+  const params: Record<string, string> = {
+    page: String(page),
+    page_size: String(pageSize),
+  };
+  if (sortBy) params.sort_by = sortBy;
+  if (sortDirection) params.sort_direction = sortDirection;
+
   const { data } = await apiClient.get<PaginatedUsers>("/users", {
-    params: { page: String(page), page_size: String(pageSize) },
+    params,
   });
   return data;
 }

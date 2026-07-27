@@ -9,6 +9,9 @@ import { useAuth } from "../hooks/useAuth";
 import { extractErrorMessage } from "../utils/errors";
 import type { User } from "../types";
 
+type SortKey = "email" | "role" | "created_at";
+type SortDirection = "asc" | "desc";
+
 function PlusIcon({ className }: { className?: string }) {
   return (
     <svg
@@ -61,11 +64,19 @@ export function AdminUsersPage() {
   const [deletingUser, setDeletingUser] = useState<User | null>(null);
   const [busyId, setBusyId] = useState<number | null>(null);
 
+  const [sortKey, setSortKey] = useState<SortKey>("created_at");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
+
   const loadData = async (currentPage: number = page) => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await listUsers(currentPage, pageSize);
+      const data = await listUsers(
+        currentPage,
+        pageSize,
+        sortKey,
+        sortDirection,
+      );
       setUsers(data.items);
       setTotalItems(data.total);
       setPage(data.page);
@@ -78,7 +89,7 @@ export function AdminUsersPage() {
 
   useEffect(() => {
     void loadData(1);
-  }, []);
+  }, [sortKey, sortDirection]);
 
   const handleCreate = async (payload: CreateUserInput) => {
     await createUser(payload);
@@ -104,6 +115,28 @@ export function AdminUsersPage() {
   const handlePageChange = (nextPage: number) => {
     void loadData(nextPage);
   };
+
+  const toggleSort = (key: SortKey) => {
+    if (sortKey === key) {
+      setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setSortKey(key);
+      setSortDirection("asc");
+    }
+    setPage(1);
+  };
+
+  const sortableHeader = (key: SortKey, label: string) => (
+    <th
+      onClick={() => toggleSort(key)}
+      className="cursor-pointer px-6 py-4 font-semibold"
+    >
+      <div className="flex items-center gap-1">
+        {label}
+        {sortKey === key && <span>{sortDirection === "asc" ? "↑" : "↓"}</span>}
+      </div>
+    </th>
+  );
 
   const adminCount = users.filter((u) => u.role === "admin").length;
 
@@ -140,9 +173,9 @@ export function AdminUsersPage() {
           <table className="min-w-full text-base">
             <thead>
               <tr className="border-b border-gray-200 text-left text-gray-900">
-                <th className="px-6 py-4 font-semibold">Email</th>
-                <th className="px-6 py-4 font-semibold">Role</th>
-                <th className="px-6 py-4 font-semibold">Created</th>
+                {sortableHeader("email", "Email")}
+                {sortableHeader("role", "Role")}
+                {sortableHeader("created_at", "Created")}
                 <th className="px-6 py-4 text-right font-semibold">Actions</th>
               </tr>
             </thead>

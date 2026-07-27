@@ -53,15 +53,21 @@ def list_users(
     db: DBSession = Depends(get_db),
     page: int = Query(default=1, ge=1),
     page_size: int = Query(default=10, ge=1, le=100),
+    sort_by: str | None = None,
+    sort_direction: str | None = Query(default=None, pattern="^(asc|desc)$"),
 ) -> PaginatedUserOut:
     """
     List all users in the system.
 
     Admin only.
     """
-    query = db.query(User)
-    total = query.count()
-    items = query.offset((page - 1) * page_size).limit(page_size).all()
+    items, total = user_service.list_users(
+        db,
+        page=page,
+        page_size=page_size,
+        sort_by=sort_by,
+        sort_direction=sort_direction,
+    )
     return PaginatedUserOut(
         items=[UserOut.model_validate(user) for user in items],
         total=total,
