@@ -13,7 +13,7 @@ import { ConfirmDialog } from "../components/ConfirmDialog";
 import { extractErrorMessage } from "../utils/errors";
 import type { Hardware, HardwareInput } from "../types";
 
-type SortKey = "name" | "brand" | "purchase_date" | "status";
+type SortKey = "name" | "brand" | "serial_number" | "purchase_date" | "status";
 type SortDirection = "asc" | "desc";
 
 function EditIcon({ className }: { className?: string }) {
@@ -236,7 +236,7 @@ export function AdminHardwarePage() {
               <tr className="border-b border-gray-200 text-left text-gray-900">
                 {sortableHeader("name", "Device Name")}
                 {sortableHeader("brand", "Brand")}
-                <th className="px-6 py-4 font-semibold">Serial Number</th>
+                {sortableHeader("serial_number", "Serial Number")}
                 {sortableHeader("purchase_date", "Date Added")}
                 {sortableHeader("status", "Status")}
                 <th className="px-6 py-4 text-right font-semibold">Actions</th>

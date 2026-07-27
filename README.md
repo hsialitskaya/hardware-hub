@@ -3,7 +3,7 @@
 Internal inventory and rental management system built for the Booksy Early Careers recruitment task. The application helps employees manage company equipment, rent available gear, and leverage AI for semantic search.
 
 - **Live demo:** https://hardware-hub-production-3c1d.up.railway.app
-- **API docs:** https://hardware-hub-api.up.railway.app/docs
+- **API docs:** https://hardware-hub-production-6b8f.up.railway.app/docs
 - **Demo credentials:** `admin@booksy.com` / `ChangeMe123!`
 
 ## What was built

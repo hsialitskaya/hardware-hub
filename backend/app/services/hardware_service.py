@@ -24,7 +24,7 @@ def list_hardware(
         query = query.filter(Hardware.status == status)
     if brand:
         query = query.filter(Hardware.brand.ilike(f"%{brand}%"))
-    if sort_by in {"name", "brand", "purchase_date", "status"}:
+    if sort_by in {"name", "brand", "serial_number", "purchase_date", "status"}:
         column = getattr(Hardware, sort_by)
         if sort_direction == "desc":
             query = query.order_by(column.desc())
