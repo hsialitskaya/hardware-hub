@@ -124,13 +124,13 @@ Follow-up:
 
 ## 8.5. Pagination & Rate Limiting
 
-> "Add pagination everywhere possible."
+> "Add pagination to all endpoints and views that return potentially large datasets."
 
 (English. Original prompt was in Polish. Added paginated responses to hardware, users, rentals, and AI search endpoints, plus a shared `Pagination` component on the frontend.)
 
 Follow-up:
 
-> "Add rate limiting."
+> "Implement rate limiting for all public API endpoints."
 
 (English. Added per-route rate limits using `slowapi` with IP-based keys for auth, hardware, rentals, users, and search endpoints.)
 
