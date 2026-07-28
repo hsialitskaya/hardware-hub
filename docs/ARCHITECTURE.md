@@ -47,15 +47,9 @@ The frontend is responsible for:
 ```
 Login Page
 
-Dashboard
+User Panel (Hardware Rent, My Rentals)
 
-Admin Panel
-
-Hardware Management
-
-User Management
-
-AI Search
+Admin Panel (Hardware Management, User Management)
 ```
 
 ---
