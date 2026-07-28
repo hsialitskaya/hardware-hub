@@ -8,7 +8,7 @@
 
 ## Project
 
-**Name:** Hardware Hub
+**Name:** Hardware Hub  
 **Goal:** Build an internal application for managing, renting, and maintaining company hardware while demonstrating an AI-first engineering workflow.
 
 ## Final Objectives
