@@ -111,4 +111,4 @@ The suite includes critical rental business-rule tests plus user-management guar
 
 ## License
 
-MIT
+ Hardware Hub is licensed under the MIT License. See [LICENSE](https://github.com/hsialitskaya/HardwareHub/blob/main/LICENSE) for more information. 
