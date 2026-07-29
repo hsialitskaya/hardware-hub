@@ -1,6 +1,6 @@
 # Hardware Hub – Final Project Plan
 
-> This document describes the final implementation plan for the Hardware Hub recruitment task. It is based on the AI-suggested plan but includes my own decisions, adjustments, and additions.
+> This document describes the final implementation plan for the Hardware Hub project. It is based on the AI-suggested plan but includes my own decisions, adjustments, and additions.
 >
 > The original AI suggestions are preserved in [PLAN_AI_SUGGESTIONS.md](PLAN_AI_SUGGESTIONS.md).
 
@@ -319,4 +319,4 @@ hardware-hub/
 
 ## Summary
 
-The final plan keeps the core MVP lightweight and deployable while leaving clear extension points for future AI features. Every must-have requirement from the recruitment task is implemented, tested, and documented.
+The final plan keeps the core MVP lightweight and deployable while leaving clear extension points for future AI features. Every must-have requirement is implemented, tested, and documented.

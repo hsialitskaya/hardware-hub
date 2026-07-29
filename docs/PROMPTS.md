@@ -6,7 +6,7 @@ This file contains the most important prompts that shaped the Hardware Hub proje
 
 ## 1. Project Kick-off
 
-> "Create a plan for a company hardware rental management app. This is a recruitment task. It needs an admin, users, hardware rental, and one AI feature."
+> "Create a plan for a company hardware rental management app. It needs an admin, users, hardware rental, and one AI feature."
 
 (Original prompt was in Polish. Established the MVP scope and led to the three-pillar structure: Management Engine, Rental Engine, AI-Native Layer.)
 

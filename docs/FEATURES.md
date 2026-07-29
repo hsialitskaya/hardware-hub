@@ -1,6 +1,6 @@
 # Features
 
-A detailed walkthrough of the Hardware Hub capabilities, mapped to the recruitment task scope.
+A detailed walkthrough of the Hardware Hub capabilities.
 
 ## 1. Management Engine
 
@@ -75,7 +75,7 @@ The system prevents impossible states:
 
 Available at `/dashboard` via the AI search input.
 
-- Users type natural-language queries, e.g. *"I need something to test a mobile app on"*.
+- Users type natural-language queries, e.g. _"I need something to test a mobile app on"_.
 - The backend sends the catalog to an LLM via OpenRouter and returns matching hardware.
 - If the AI service is unavailable or no API key is configured, the system falls back to keyword search.
 - Results include a reason for each match.

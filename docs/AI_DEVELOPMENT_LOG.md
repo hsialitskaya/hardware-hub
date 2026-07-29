@@ -55,7 +55,7 @@ The following prompts shaped the architecture and design of the system. They are
 
 ### 1. Initial Planning
 
-> "I need to build a recruitment task: an internal hardware rental app with admin controls, rental rules, and one AI feature. Help me plan the MVP."
+> "I need to build an internal hardware rental app with admin controls, rental rules, and one AI feature. Help me plan the MVP."
 
 Outcome:
 
@@ -98,9 +98,9 @@ Outcome:
 - Copilot generated a starting `railway.json` and Dockerfile pair.
 - I had to fix the backend healthcheck port and the frontend build-time API URL myself after the first deploy failed. Details are below under "Corrections."
 
-### 6. Documentation & Recruitment Requirements
+### 6. Documentation & Requirements
 
-> "Help me write a professional README and map the recruitment task requirements."
+> "Help me write a professional README and map the project requirements."
 
 Outcome:
 

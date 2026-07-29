@@ -1,6 +1,6 @@
-# Recruitment Requirements Checklist
+# Requirements Checklist
 
-This document maps every requirement recruitment task to the corresponding implementation, documentation, or deployment artifact in this repository.
+This document maps every requirement to the corresponding implementation, documentation, or deployment artifact in this repository.
 
 ## 1. Repository with Clean Commit History
 
@@ -41,16 +41,11 @@ This document maps every requirement recruitment task to the corresponding imple
 
 ## 4. Timeline
 
-**Requirement:** The preparation of this assignment should take about 4–5 hours. Please share the results at least 48 hours before the interview.
-
 **Status:** Noted.
 
 - The work was completed incrementally within the suggested timeframe.
-- The repository is ready for review before the interview.
 
 ## 5. Results Walkthrough
-
-**Requirement:** Be prepared to walk through the assignment results in detail during the final interview. We will dive deep into your documentation and decision-making process.
 
 **Status:** Prepared.
 

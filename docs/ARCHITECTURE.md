@@ -396,7 +396,7 @@ The goal was to receive feedback about:
 ## Prompt Used
 
 ```
-I need to build an AI-Native Hardware Hub application for a recruitment assignment.
+I need to build an AI-Native Hardware Hub application.
 
 Requirements:
 - Frontend: React + TypeScript
