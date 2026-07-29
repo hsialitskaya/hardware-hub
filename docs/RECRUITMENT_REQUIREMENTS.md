@@ -35,7 +35,7 @@ This document maps every requirement recruitment task to the corresponding imple
 
 - Live demo: https://hardware-hub-production-3c1d.up.railway.app
 - API docs: https://hardware-hub-production-6b8f.up.railway.app/docs
-- Demo credentials: `admin@booksy.com` / `ChangeMe123!`
+- Demo credentials: `admin@example.com` / `ChangeMe123!`
 - Deployment is configured for Railway via `railway.json` and Dockerfiles.
 - Detailed deployment steps are in [DEPLOYMENT.md](DEPLOYMENT.md).
 

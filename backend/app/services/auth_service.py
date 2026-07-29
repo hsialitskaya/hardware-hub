@@ -6,7 +6,7 @@ from app.models.user import User
 from app.security import generate_token, verify_password
 
 
-COMPANY_DOMAIN = "@booksy.com"
+COMPANY_DOMAIN = "@example.com"
 
 
 def login(db: DBSession, email: str, password: str) -> tuple[User, str]:

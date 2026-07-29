@@ -33,7 +33,7 @@ export function UserFormModal({ open, onClose, onSubmit }: UserFormModalProps) {
     onClose();
   };
 
-  const COMPANY_DOMAIN = "@booksy.com";
+  const COMPANY_DOMAIN = "@example.com";
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -66,7 +66,7 @@ export function UserFormModal({ open, onClose, onSubmit }: UserFormModalProps) {
           Create New Account
         </h3>
         <p className="mt-1 text-sm text-gray-600">
-          Accounts must use the company domain (@booksy.com).
+          Accounts must use the company domain (@example.com).
         </p>
 
         <form onSubmit={handleSubmit} className="mt-4 space-y-4">

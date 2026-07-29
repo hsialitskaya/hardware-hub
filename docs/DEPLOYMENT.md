@@ -19,7 +19,7 @@ Instructions for deploying Hardware Hub to Railway and updating the live demo li
 DATABASE_URL=sqlite:///./data/hardware_hub.db
 SECRET_KEY=<random-32-char-secret>
 OPENROUTER_API_KEY=<your-key>
-ADMIN_EMAIL=admin@booksy.com
+ADMIN_EMAIL=admin@example.com
 ADMIN_PASSWORD=<strong-password>
 CORS_ORIGINS=https://your-frontend-url.up.railway.app
 ```

@@ -4,7 +4,7 @@ from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
 from app.models.user import UserRole
 
-COMPANY_DOMAIN = "@booksy.com"
+COMPANY_DOMAIN = "@example.com"
 MIN_PASSWORD_LENGTH = 6
 
 

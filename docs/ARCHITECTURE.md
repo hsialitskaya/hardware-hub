@@ -347,7 +347,7 @@ Chosen because:
 
 - Demonstrates practical AI usage.
 - Improves employee experience.
-- Matches Booksy AI-native expectations.
+- Matches AI-native expectations.
 
 ---
 

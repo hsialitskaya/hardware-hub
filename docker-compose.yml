@@ -10,7 +10,7 @@ services:
       DATABASE_URL: "sqlite:///./data/hardware_hub.db"
       SECRET_KEY: "change-me-in-production"
       OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
-      ADMIN_EMAIL: "admin@booksy.com"
+      ADMIN_EMAIL: "admin@example.com"
       ADMIN_PASSWORD: "ChangeMe123!"
     volumes:
       - backend-data:/app/data
@@ -32,6 +32,8 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        VITE_API_URL: "http://localhost:8000"
     container_name: hardware-hub-frontend
     ports:
       - "5173:5173"

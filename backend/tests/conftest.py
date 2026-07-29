@@ -33,7 +33,7 @@ def test_db():
 def test_user(test_db: Session) -> User:
     """Create a regular test user."""
     user = User(
-        email="user@booksy.com",
+        email="user@example.com",
         hashed_password=hash_password("test123"),
         role=UserRole.USER,
     )
@@ -47,7 +47,7 @@ def test_user(test_db: Session) -> User:
 def test_admin(test_db: Session) -> User:
     """Create an admin test user."""
     admin = User(
-        email="admin@booksy.com",
+        email="admin@example.com",
         hashed_password=hash_password("admin123"),
         role=UserRole.ADMIN,
     )

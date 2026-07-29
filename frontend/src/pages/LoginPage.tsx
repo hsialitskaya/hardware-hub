@@ -6,7 +6,7 @@ import { PasswordInput } from "../components/PasswordInput";
 import { extractErrorMessage } from "../utils/errors";
 import { MAX_LENGTH } from "../utils/validation";
 
-const COMPANY_DOMAIN = "@booksy.com";
+const COMPANY_DOMAIN = "@example.com";
 
 export function LoginPage() {
   const { login } = useAuth();
@@ -67,7 +67,7 @@ export function LoginPage() {
               autoFocus
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="name@booksy.com"
+              placeholder="name@example.com"
               maxLength={MAX_LENGTH.EMAIL}
               className="mt-2 w-full rounded-xl border-0 bg-gray-100 px-4 py-3 text-base text-gray-900 placeholder-gray-500 focus:bg-white focus:ring-2 focus:ring-gray-200 focus:outline-none"
             />

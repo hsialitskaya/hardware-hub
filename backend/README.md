@@ -38,16 +38,16 @@ The backend follows a layered architecture: API routers validate HTTP requests, 
 
 ## Technology Stack
 
-| Layer | Technology |
-|-------|------------|
-| Framework | FastAPI |
-| ORM | SQLAlchemy 2 |
-| Validation | Pydantic 2 |
-| Migrations | Alembic |
-| Database | SQLite (configurable to PostgreSQL) |
-| AI Client | OpenAI SDK with OpenRouter |
-| Rate Limiting | Slowapi |
-| Testing | pytest |
+| Layer         | Technology                          |
+| ------------- | ----------------------------------- |
+| Framework     | FastAPI                             |
+| ORM           | SQLAlchemy 2                        |
+| Validation    | Pydantic 2                          |
+| Migrations    | Alembic                             |
+| Database      | SQLite (configurable to PostgreSQL) |
+| AI Client     | OpenAI SDK with OpenRouter          |
+| Rate Limiting | Slowapi                             |
+| Testing       | pytest                              |
 
 ## Project Structure
 
@@ -99,14 +99,14 @@ cp .env.example .env
 
 Required variables:
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `DATABASE_URL` | `sqlite:///./hardware_hub.db` | SQLAlchemy database URL |
-| `SECRET_KEY` | `change-me-in-production` | Secret key for session signing |
-| `OPENROUTER_API_KEY` | none | API key for AI search |
-| `ADMIN_EMAIL` | `admin@booksy.com` | Initial admin email |
-| `ADMIN_PASSWORD` | `ChangeMe123!` | Initial admin password |
-| `CORS_ORIGINS` | `http://localhost:5173` | Allowed frontend origins |
+| Variable             | Default                       | Description                    |
+| -------------------- | ----------------------------- | ------------------------------ |
+| `DATABASE_URL`       | `sqlite:///./hardware_hub.db` | SQLAlchemy database URL        |
+| `SECRET_KEY`         | `change-me-in-production`     | Secret key for session signing |
+| `OPENROUTER_API_KEY` | none                          | API key for AI search          |
+| `ADMIN_EMAIL`        | `admin@example.com`           | Initial admin email            |
+| `ADMIN_PASSWORD`     | `ChangeMe123!`                | Initial admin password         |
+| `CORS_ORIGINS`       | `http://localhost:5173`       | Allowed frontend origins       |
 
 ### Database Setup
 
@@ -151,22 +151,22 @@ The test suite covers critical rental business rules and user-management guards.
 
 ## API Endpoints
 
-| Method | Path | Description | Access |
-|--------|------|-------------|--------|
-| POST | `/auth/login` | Authenticate and receive session token | Public |
-| GET | `/users/me` | Current user profile | Authenticated |
-| GET | `/users` | List all users | Admin |
-| POST | `/users` | Create a new user | Admin |
-| DELETE | `/users/{id}` | Delete a user | Admin |
-| GET | `/hardware` | List hardware with filters | Authenticated |
-| POST | `/hardware` | Add new hardware | Admin |
-| PATCH | `/hardware/{id}` | Update hardware | Admin |
-| DELETE | `/hardware/{id}` | Delete hardware | Admin |
-| GET | `/rentals/me` | List my rentals | Authenticated |
-| POST | `/rentals` | Rent hardware | Authenticated |
-| POST | `/rentals/{id}/return` | Return rented hardware | Authenticated |
-| POST | `/search` | AI semantic search | Authenticated |
-| GET | `/health` | Health check | Public |
+| Method | Path                   | Description                            | Access        |
+| ------ | ---------------------- | -------------------------------------- | ------------- |
+| POST   | `/auth/login`          | Authenticate and receive session token | Public        |
+| GET    | `/users/me`            | Current user profile                   | Authenticated |
+| GET    | `/users`               | List all users                         | Admin         |
+| POST   | `/users`               | Create a new user                      | Admin         |
+| DELETE | `/users/{id}`          | Delete a user                          | Admin         |
+| GET    | `/hardware`            | List hardware with filters             | Authenticated |
+| POST   | `/hardware`            | Add new hardware                       | Admin         |
+| PATCH  | `/hardware/{id}`       | Update hardware                        | Admin         |
+| DELETE | `/hardware/{id}`       | Delete hardware                        | Admin         |
+| GET    | `/rentals/me`          | List my rentals                        | Authenticated |
+| POST   | `/rentals`             | Rent hardware                          | Authenticated |
+| POST   | `/rentals/{id}/return` | Return rented hardware                 | Authenticated |
+| POST   | `/search`              | AI semantic search                     | Authenticated |
+| GET    | `/health`              | Health check                           | Public        |
 
 ## Design Decisions
 

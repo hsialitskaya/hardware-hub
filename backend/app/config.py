@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     database_url: str = "sqlite:///./hardware_hub.db"
     secret_key: str = "change-me-in-production"
     openrouter_api_key: str | None = None
-    admin_email: str = "admin@booksy.com"
+    admin_email: str = "admin@example.com"
     admin_password: str = "ChangeMe123!"
     cors_origins: str = "http://localhost:5173"
 
